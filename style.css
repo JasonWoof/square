@@ -1,0 +1,2 @@
+.square { border: 1px solid blue; margin-top: -1px; margin-left: -1px; width: 128px; height: 128px; float: left; }
+#square_0, #square_4, #square_8, #square_c { clear: left; }

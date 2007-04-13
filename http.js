@@ -9,7 +9,7 @@ function sendRequest(url,callback,postData) {
 	req.onreadystatechange = function () {
 		if (req.readyState != 4) return;
 		if (req.status != 200 && req.status != 304) {
-//			alert('HTTP error ' + req.status);
+			alert('HTTP error ' + req.status);
 			return;
 		}
 		callback(req);

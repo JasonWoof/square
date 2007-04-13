@@ -6,7 +6,7 @@ function encode_square($x, $y, $pixels) {
 	$BOX_WIDTH = 64;
 	$LINE_WIDTH = 512;
 	$out = "";
-	$ymax = $y + 4;
+	$ymax = $y + $BOX_WIDTH;
 
 	for( ; $y < $ymax; $y++) {
 		$scan = substr($pixels, $y * $LINE_WIDTH + $x * $BOX_WIDTH, $BOX_WIDTH);
