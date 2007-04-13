@@ -57,6 +57,6 @@ function squares(data) {
 	for(square_num = 0; square_num < 16; square_num++) {
 		make_square(square_num);
 		png = make_png();
-		tag('square_' + square_names[square_num]).style.backgroundImage = 'url(data:image/png;base64,' + png + ')';
+		tag('square_' + square_names[square_num]).src = 'data:image/png;base64,' + png;
 	}
 }
