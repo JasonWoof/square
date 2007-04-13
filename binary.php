@@ -14,13 +14,29 @@ function color_pixel($x, $y) {
 }
 
 function color_square($x, $y, $width) {
-	# FIXME optomize
-	$xmax = $x + $width;
-	$ymax = $y + $width;
-	for(; $y < $ymax; $y++) {
-		for($xx = $x; $xx < $xmax; $xx++) {
-			color_pixel($xx, $y);
-		}
+	# it's always going to be alligned to $width, and $width will never be 1
+	$bit = $x % 8;
+	switch($width) {
+		case 2:
+			$GLOBALS['pixels'][($x / 8) + ($y * $GLOBALS['pixels_rowbytes'])] ^= 0xc0 >> $bit;
+			$GLOBALS['pixels'][($x / 8) + (($y + 1) * $GLOBALS['pixels_rowbytes'])] ^= 0xc0 >> $bit;
+		return;
+		case 4:
+			$GLOBALS['pixels'][($x / 8) + ($y * $GLOBALS['pixels_rowbytes'])] ^= 0xf0 >> $bit;
+			$GLOBALS['pixels'][($x / 8) + (($y + 1) * $GLOBALS['pixels_rowbytes'])] ^= 0xf0 >> $bit;
+			$GLOBALS['pixels'][($x / 8) + (($y + 2) * $GLOBALS['pixels_rowbytes'])] ^= 0xf0 >> $bit;
+			$GLOBALS['pixels'][($x / 8) + (($y + 3) * $GLOBALS['pixels_rowbytes'])] ^= 0xf0 >> $bit;
+		return;
+		default:
+			$x /= 8;
+			$xmax = $x + ($width / 8);
+			$ymax = ($y + $width) * $GLOBALS['pixels_rowbytes'];
+			for($yy = $y * $GLOBALS['pixels_rowbytes']; $yy < $ymax; $yy += $GLOBALS['pixels_rowbytes']) {
+				for($xx = $x; $xx < $xmax; $xx++) {
+					$GLOBALS['pixels'][$xx + $yy] = 0xff;
+				}
+			}
+		return;
 	}
 }
 
