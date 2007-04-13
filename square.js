@@ -19,6 +19,13 @@ function squares(data) {
 	var square_num;
 	var square_names = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'];
 
+	var nd = new Array(data.length);
+	for(var jt = 0; jt < data.length; ++jt) {
+		nd[jt] = (data.charCodeAt(jt));
+	}
+
+	data = nd;
+
 	png_init(width, height);
 
 	for(square_num = 0; square_num < 16; square_num++) {

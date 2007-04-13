@@ -11,16 +11,16 @@ function binary() {
 			$coord = substr($hex, $x + 4 * $y, 1);
 			$ret = db_get_value('square', 'pixels', 'where address=%"', $coord);
 			if($ret === null) {
-				$pixels .= "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
+				$pixels .= str_repeat("\x00\x00\x00\x00", 128);
 			} else {
 				$pixels .= $ret;
 			}
 		}
 	}
 
-	header('Content-Type: application/octet-stream');
+	header('Content-Type: application/octet-stream; charset=us-ascii');
 	header('Content-Length: 8192');
-	echo $pixels;
+	print($pixels);
 }
 
 
