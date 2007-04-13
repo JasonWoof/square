@@ -30,19 +30,32 @@ function encode_square($x, $y, $pixels) {
 }
 
 
+function init_square($parent, $position, $depth) {
+	db_insert('square', 'parent,position,tog0,tog1,tog2,tog3,id0,id1,id2,id3', $parent, $position, 1, 1, 1, 1, 0, 0, 0, 0);
+	$me = db_auto_id();
+	$id0 = $id1 = $id2 = $id3 = 0;
+	if(rand(0, $depth) == 0) $id0 = init_square($me, 0, $depth + 1);
+	if(rand(0, $depth) == 0) $id1 = init_square($me, 1, $depth + 1);
+	if(rand(0, $depth) == 0) $id2 = init_square($me, 2, $depth + 1);
+	if(rand(0, $depth) == 0) $id3 = init_square($me, 3, $depth + 1);
+	if($id0 || $id1 || $id2 || $id3) {
+		db_update('square', 'id0,id1,id2,id3', $id0, $id1, $id2, $id3, 'where id=%i', $me);
+	}
+
+	return $me;
+}
+
 
 function init() {
-	$pixels = read_whole_file('start.bin');
-	$hex = "0123456789abcdef";
+	$GLOBALS['pixels'] = read_whole_file('start.bin');
 
 	db_delete('square');
 
-	for($x = 0; $x < 4; $x++) {
-		for($y = 0; $y < 4; $y++) {
-			$coord = substr($hex, $x + 4 * $y, 1);
-			db_insert('square', 'address,pixels', $coord, encode_square($x, $y, &$pixels));
-		}
-	}
+	$mama = init_square(0, 0, 0);
+
+	db_replace('square_mama', 'id, mama', '1', $mama);
+
+	print("mama: '$mama'");
 }
 
 
