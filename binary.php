@@ -45,7 +45,7 @@ function binary_square($id, $x, $y, $width, $toggled) {
 	if($width == 1) {
 //		print("width==1;<br>");
 		if($toggled) {
-			toggle_pixel($x, $y);
+			color_pixel($x, $y);
 		}
 		return;
 	}
@@ -93,7 +93,7 @@ function binary() {
 		$GLOBALS['pixels'][] = 0;
 	}
 
-	binary_square($square, 0, 0, $SQUARE_WIDTH, 0);
+	binary_square($square, 0, 0, $SQUARE_WIDTH, 1);
 
 	header('Content-Type: application/octet-stream; charset=us-ascii');
 	header('Content-Length: 8192');

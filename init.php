@@ -31,7 +31,7 @@ function encode_square($x, $y, $pixels) {
 
 
 function init_square($parent, $position, $depth) {
-	db_insert('square', 'parent,position,tog0,tog1,tog2,tog3,id0,id1,id2,id3', $parent, $position, 1, 1, 1, 1, 0, 0, 0, 0);
+	db_insert('square', 'parent,position,tog0,tog1,tog2,tog3,id0,id1,id2,id3', $parent, $position, rand(0,1), rand(0,1), rand(0,1), rand(0,1), 0, 0, 0, 0);
 	$me = db_auto_id();
 	$id0 = $id1 = $id2 = $id3 = 0;
 	if(rand(0, $depth + 2) < 3) $id0 = init_square($me, 0, $depth + 1);
