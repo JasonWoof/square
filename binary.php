@@ -10,7 +10,6 @@ function get_mama() {
 function color_pixel($x, $y) {
 	$bit = $x % 8;
 	$GLOBALS['pixels'][($x / 8) + ($y * $GLOBALS['pixels_rowbytes'])] ^= 0x80 >> $bit;
-//	print("px($x,$y) &nbsp; ");
 }
 
 function color_square($x, $y, $width) {
@@ -41,9 +40,7 @@ function color_square($x, $y, $width) {
 }
 
 function binary_square($id, $x, $y, $width, $toggled) {
-	// print("binary_square($id, $x, $y, $width, $toggled)<br>");
 	if($width == 1) {
-//		print("width==1;<br>");
 		if($toggled) {
 			color_pixel($x, $y);
 		}
@@ -51,7 +48,6 @@ function binary_square($id, $x, $y, $width, $toggled) {
 	}
 
 	if($id == 0) {
-//		print("id==0;<br>");
 		if($toggled) {
 			color_square($x, $y, $width);
 		}
@@ -77,6 +73,8 @@ function binary_square($id, $x, $y, $width, $toggled) {
 	
 
 function binary() {
+	header('Content-Type: application/octet-stream; charset=us-ascii');
+	header('Content-Length: 8192');
 	$SQUARE_WIDTH = 256;
 	if(isset($_REQUEST['square'])) {
 		$square = format_int($_REQUEST['square']);
@@ -95,12 +93,9 @@ function binary() {
 
 	binary_square($square, 0, 0, $SQUARE_WIDTH, 1);
 
-	header('Content-Type: application/octet-stream; charset=us-ascii');
-	header('Content-Length: 8192');
 	for($i = 0; $i < $SQUARE_WIDTH * $SQUARE_WIDTH; $i++) {
 		print(chr($GLOBALS['pixels'][$i]));
 	}
-	//print(join($GLOBALS['pixels']));
 }
 
 
