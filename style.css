@@ -1,2 +1,11 @@
-.square { border: 1px solid blue; margin-top: -1px; margin-left: -1px; width: 128px; height: 128px; display: block; float: left; }
+.square { width: 128px; height: 128px; display: block; float: left; }
 #square_0, #square_4, #square_8, #square_c { clear: left; }
+#square_2, #square_6, #square_a, #square_e { clear: left; }
+
+.quadrant { float: left; }
+#quadrant_2 { clear: left; }
+
+#quadrant_0, #quadrant_1 { border-top: 2px solid blue; }
+#quadrant_1, #quadrant_3 { border-right: 2px solid blue; }
+#quadrant_3, #quadrant_2 { border-bottom: 2px solid blue; }
+#quadrant_2, #quadrant_0 { border-left: 2px solid blue; }

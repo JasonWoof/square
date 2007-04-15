@@ -2,10 +2,7 @@
 
 require_once('db_connect.php');
 
-# return the ID of the biggest square
-function get_mama() {
-	return db_get_value('square_mama', 'mama', 'where id=1');
-}
+require_once('code/common.php');
 
 function color_pixel($x, $y) {
 	$bit = $x % 8;
@@ -56,12 +53,6 @@ function binary_square($id, $x, $y, $width, $toggled) {
 		
 	list($tog0, $tog1, $tog2, $tog3, $id0, $id1, $id2, $id3) = db_get_row('square', 'tog0,tog1,tog2,tog3,id0,id1,id2,id3', 'where id=%i', $id);
 
-	# make sure values are 1 or 0 so they will xor properly
-	$tog0 &= 1;
-	$tog1 &= 1;
-	$tog2 &= 1;
-	$tog3 &= 1;
-
 	$width /= 2;
 	binary_square($id0, $x, $y, $width, $toggled ^ $tog0);
 	binary_square($id1, $x + $width, $y, $width, $toggled ^ $tog1);
@@ -70,34 +61,46 @@ function binary_square($id, $x, $y, $width, $toggled) {
 }
 
 
-	
+function get_initial_toggle($square) {
+	$toggle = 0;
+
+	list($parent, $position) = db_get_row('square', 'parent,position', 'where id=%i', $square);
+	while($parent && ($position == '0' || $position == '1' || $position == '2' || $position == '3')) {
+		$field = 'tog' . $position;
+		list($parent, $position, $tog) =  db_get_row('square', "parent,position,$field", 'where id=%i', $parent);
+		$toggle ^= $tog;
+	}
+
+	return $toggle;
+}
+
 
 function binary() {
 	header('Content-Type: application/octet-stream; charset=us-ascii');
-	header('Content-Length: 8192');
+	header('Content-Length: 8196');
 	$SQUARE_WIDTH = 256;
-	if(isset($_REQUEST['square'])) {
-		$square = format_int($_REQUEST['square']);
-		if(db_get_value('square', 'count(*)', 'where id=%i', $square) == 0) {
-			$square = get_mama();
-		}
-	} else {
-		$square = get_mama();
-	}
+
+	$square = get_square_id();
 	
 	$GLOBALS['pixels_rowbytes'] = $SQUARE_WIDTH / 8;
 	$GLOBALS['pixels'] = array();
-	for($i = 0; $i < $SQUARE_WIDTH * $SQUARE_WIDTH; $i++) {
+	for($i = 0; $i < $SQUARE_WIDTH * $SQUARE_WIDTH/ 8; $i++) {
 		$GLOBALS['pixels'][] = 0;
 	}
 
-	binary_square($square, 0, 0, $SQUARE_WIDTH, 1);
+	binary_square($square, 0, 0, $SQUARE_WIDTH, get_initial_toggle($square));
 
-	for($i = 0; $i < $SQUARE_WIDTH * $SQUARE_WIDTH; $i++) {
+
+	# let the client know that it's looking at
+	print(chr($square >> 24));
+	print(chr(($square >> 16) & 0xff));
+	print(chr(($square >> 8) & 0xff));
+	print(chr($square & 0xff));
+
+	for($i = 0; $i < $SQUARE_WIDTH * $SQUARE_WIDTH/ 8; $i++) {
 		print(chr($GLOBALS['pixels'][$i]));
 	}
 }
-
 
 
 ?>

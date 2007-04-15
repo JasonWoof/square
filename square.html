@@ -9,23 +9,35 @@
   <script type="text/javascript" src="square.js"></script>
 </head>
 
-<body onload="jason()">
+<body onload="load(~square_id~)">
 <p id="log"></p>
+<div id="quadrant_0" class="quadrant" onclick="quad_click(0)">
 <img id="square_0" class="square"></img>
 <img id="square_1" class="square"></img>
-<img id="square_2" class="square"></img>
-<img id="square_3" class="square"></img>
 <img id="square_4" class="square"></img>
 <img id="square_5" class="square"></img>
+</div>
+
+<div id="quadrant_1" class="quadrant" onclick="quad_click(1)">
+<img id="square_2" class="square"></img>
+<img id="square_3" class="square"></img>
 <img id="square_6" class="square"></img>
 <img id="square_7" class="square"></img>
+</div>
+
+<div id="quadrant_2" class="quadrant" onclick="quad_click(2)">
 <img id="square_8" class="square"></img>
 <img id="square_9" class="square"></img>
-<img id="square_a" class="square"></img>
-<img id="square_b" class="square"></img>
 <img id="square_c" class="square"></img>
 <img id="square_d" class="square"></img>
+</div>
+
+<div id="quadrant_3" class="quadrant" onclick="quad_click(3)">
+<img id="square_a" class="square"></img>
+<img id="square_b" class="square"></img>
 <img id="square_e" class="square"></img>
 <img id="square_f" class="square"></img>
+</div>
+
 </body>
 </html>

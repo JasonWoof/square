@@ -1,3 +1,4 @@
+var dbg_url;
 function sendRequest(url,callback,postData) {
 	var req = createXMLHTTPObject();
 	if (!req) return;
@@ -6,10 +7,11 @@ function sendRequest(url,callback,postData) {
 	req.setRequestHeader('User-Agent','XMLHTTP/1.0');
 	if (postData)
 		req.setRequestHeader('Content-type','application/x-www-form-urlencoded');
+	dbg_url = url;
 	req.onreadystatechange = function () {
 		if (req.readyState != 4) return;
 		if (req.status != 200 && req.status != 304) {
-			alert('HTTP error ' + req.status);
+			alert('url:' + dbg_url + '  HTTP error ' + req.status);
 			return;
 		}
 		callback(req);
