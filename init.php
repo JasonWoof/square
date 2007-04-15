@@ -47,8 +47,6 @@ function init_square($parent, $position, $depth) {
 
 
 function init() {
-	$GLOBALS['pixels'] = read_whole_file('start.bin');
-
 	db_delete('square');
 
 	$mama = init_square(0, 0, 0);
