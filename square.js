@@ -30,7 +30,10 @@ function get_and_render(square, zoom) {
 	}
 	if(zoom == 0 || zoom == 1 || zoom == 2 || zoom == 3) {
 		url += sep + 'zoom=' + zoom.toString();
+	} else if (zoom == 'out') {
+		url += sep + 'zoom=out';
 	}
+
 	sendRequest(url, call_me);
 }
 
@@ -100,9 +103,11 @@ function squares(data) {
 	}
 }
 
-function quad_click(which) {
+function click(which) {
 	get_and_render(square_id, which);
-	animate_zoom(which);
+	if(which != 'out') {
+		animate_zoom(which);
+	}
 }
 
 

@@ -9,3 +9,18 @@
 #quadrant_1, #quadrant_3 { border-right: 2px solid blue; }
 #quadrant_3, #quadrant_2 { border-bottom: 2px solid blue; }
 #quadrant_2, #quadrant_0 { border-left: 2px solid blue; }
+
+
+#zoom_out {
+	margin: 30px 10px;
+	border: 2px solid #000;
+	background: #ccc;
+	color: black;
+	padding: 3px;
+	float: left;
+	clear: left;
+}
+#zoom_out:hover {
+	border: 2px solid #333;
+	background: #fff;
+}

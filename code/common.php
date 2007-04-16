@@ -72,8 +72,8 @@ function get_square_id() {
 	if(isset($_REQUEST['square'])) {
 		$square = format_int($_REQUEST['square']);
 		if(db4_exists($square)) {
-			if(isset($_REQUEST['zoom']) && ($_REQUEST['zoom'] == '0' || $_REQUEST['zoom'] == '1' || $_REQUEST['zoom'] == '2' || $_REQUEST['zoom'] == '3')) {
-				list($parent, $parent_position, $tog0, $tog1, $tog2, $tog3, $id0, $id1, $id2, $id3) = db_get_square($square);
+			if(isset($_REQUEST['zoom'])) {
+				list($parent, $position, $tog0, $tog1, $tog2, $tog3, $id0, $id1, $id2, $id3) = db_get_square($square);
 				switch($_REQUEST['zoom']) {
 					case '0':
 						$new = $id0;
@@ -86,6 +86,9 @@ function get_square_id() {
 					break;
 					case '3':
 						$new = $id3;
+					break;
+					case 'out':
+						$new = $parent;
 					break;
 					default:
 						$new = false;
