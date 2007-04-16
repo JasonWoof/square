@@ -1,14 +1,14 @@
 <?php
 
-require_once('db_connect.php');
-
 require_once('code/common.php');
+require_once('code/db.php');
 
 function color_pixel($x, $y) {
 	$bit = $x % 8;
 	$GLOBALS['pixels'][($x / 8) + ($y * $GLOBALS['pixels_rowbytes'])] ^= 0x80 >> $bit;
 }
 
+# on my machine, this function takes up about 10% of the total execution time
 function color_square($x, $y, $width) {
 	# it's always going to be alligned to $width, and $width will never be 1
 	$bit = $x % 8;
@@ -51,7 +51,7 @@ function binary_square($id, $x, $y, $width, $toggled) {
 		return;
 	}
 		
-	list($tog0, $tog1, $tog2, $tog3, $id0, $id1, $id2, $id3) = db_get_row('square', 'tog0,tog1,tog2,tog3,id0,id1,id2,id3', 'where id=%i', $id);
+	list($parent, $position, $tog0, $tog1, $tog2, $tog3, $id0, $id1, $id2, $id3) = db_get_square($id);
 
 	$width /= 2;
 	binary_square($id0, $x, $y, $width, $toggled ^ $tog0);
@@ -63,12 +63,13 @@ function binary_square($id, $x, $y, $width, $toggled) {
 
 function get_initial_toggle($square) {
 	$toggle = 0;
-
-	list($parent, $position) = db_get_row('square', 'parent,position', 'where id=%i', $square);
-	while($parent && ($position == '0' || $position == '1' || $position == '2' || $position == '3')) {
-		$field = 'tog' . $position;
-		list($parent, $position, $tog) =  db_get_row('square', "parent,position,$field", 'where id=%i', $parent);
-		$toggle ^= $tog;
+	
+	list($parent, $position, $tog0, $tog1, $tog2, $tog3, $id0, $id1, $id2, $id3) = db_get_square($square);
+	while($parent && ($position == 0 || $position == 1 || $position == 2 || $position == 3)) {
+		list($parent, $parent_position, $tog0, $tog1, $tog2, $tog3, $id0, $id1, $id2, $id3) = db_get_square($parent);
+		$foo = array($tog0, $tog1, $tog2, $tog3);
+		$toggle ^= $foo[$position];
+		$position = $parent_position;
 	}
 
 	return $toggle;
@@ -80,15 +81,21 @@ function binary() {
 	header('Content-Length: 8196');
 	$SQUARE_WIDTH = 256;
 
-	$square = get_square_id();
-	
 	$GLOBALS['pixels_rowbytes'] = $SQUARE_WIDTH / 8;
 	$GLOBALS['pixels'] = array();
 	for($i = 0; $i < $SQUARE_WIDTH * $SQUARE_WIDTH/ 8; $i++) {
 		$GLOBALS['pixels'][] = 0;
 	}
 
-	binary_square($square, 0, 0, $SQUARE_WIDTH, get_initial_toggle($square));
+	db4_open_read();
+
+		$square = get_square_id();
+
+		$snarglepop = get_initial_toggle($square);
+
+		binary_square($square, 0, 0, $SQUARE_WIDTH, $snarglepop);
+
+	db4_close();
 
 
 	# let the client know that it's looking at

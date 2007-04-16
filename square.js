@@ -136,8 +136,8 @@ var EXPAND = ANIM_VG | ANIM_HG;
 
 var h_shrinkers = new Array(8);
 var v_shrinkers = new Array(8);
-var h_expanders   = new Array(8);
-var v_expanders   = new Array(8);
+var h_expanders = new Array(8);
+var v_expanders = new Array(8);
 var animating = false;
 var animator_id;
 var pixels_to_animate;
