@@ -181,7 +181,7 @@ function animate_zoom(which) {
 
 	animating = true;
 	pixels_to_animate = 126;
-	animator_id = setInterval('animate_frame()', 300);
+	animator_id = setInterval('animate_frame()', 100);
 }
 
 function animate_frame() {

@@ -56,7 +56,7 @@ function db_new_id() {
 		$id ^= rand();
 	}
 
-	print("new id: '$id'<br>");
+	dbg_log("new id: '$id'<br>");
 	return $id;
 }
 
@@ -71,6 +71,7 @@ function square_replace($id, $parent, $position, $tog0, $tog1, $tog2, $tog3, $id
 function get_square_id() {
 	if(isset($_REQUEST['square'])) {
 		$square = format_int($_REQUEST['square']);
+		dbg_log("$looking up #$square<br />\n");
 		if(db4_exists($square)) {
 			if(isset($_REQUEST['zoom'])) {
 				list($parent, $position, $tog0, $tog1, $tog2, $tog3, $id0, $id1, $id2, $id3) = db_get_square($square);

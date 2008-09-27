@@ -3,7 +3,8 @@
 require_once('code/common.php');
 require_once('code/db.php');
 
-function index() {
+
+function index_main() {
 	if(isset($_REQUEST['square'])) {
 		db4_open_read();
 		$square_id = get_square_id();

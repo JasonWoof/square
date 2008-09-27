@@ -1,4 +1,63 @@
 	render new PNGs while it's zooming
 	make zoom out button
 	make it so you can edit!
-		learn how to get coords of mouse clicks
+		learn how to get coords of mouse clicks (see my color picker)
+
+	Figure out effecient way to store/retreive pixels
+
+	              256    64    16      4     # tiles to create view
+	   2   4   8   16    32    64    128     # size of tile
+                                
+	1  4  16  64  256  1024  4096  16384     # bits for tile
+	   5  21  85  341  1365  5461  21845     # bits for tile and parents
+
+	1  1   2   8   32   128   512   2048     # bytes for tile
+	   1   3  11   43   171   683   2631     # bytes for tile and parents
+
+
+Blocks should store:
+	cache of path to this point?
+
+-----------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------- -------------------------------------------------
+------------------------------- ------------------------------- ------------------------------- -----------------
+--------------- --------------- --------------- --------------- --------------- --------------- --------------- -
+------- ------- ------- ------- ------- ------- ------- ------- ------- ------- ------- ------- ------- ------- -
+--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- -
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+
+record is a 16x16 subsection of parent. so has 64 children
+------- ------- ------- ------- ------- ------- ------- -------  cached add of below   32x32  hard layer 64 tiles
+--- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---  cached add of below   64x64   mid layer 16 tiles
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  stored               128x128  easy layer 4 tiles
+
+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_+
+
+easy sql/db4 implementation:
+	key is base-64 number of address to record (above)
+	option 1)
+		value is 128x128 bits (only) (exactly 2KiB)
+	option 2)
+		value is 128x128 bits plus cache of smaller 2 levels (2.6KiB)
+
+NOTES
+	every 3 layers is one (base-64) address character
+	every address character (ie 3 zooms) is another db query
+
+TODO
+**	sketch out rendering hard layer
+	sketch out rendering mid layer
+	sketch out rendering easy layer
+**	sketch out rendering path to one of these records
+		recurse through address space until close, checking one bit, maintaining toggle (optomizable)
+	consider caching options
+		popular/recent path
+			to update (per changed pixel) update popcache set flip = 1 - flip where path = xxx;
+*			how do we know what's popular?
+	top level cached in every way
+		cache ends of paths
+		cache encoded 256x256 tiles from at least top three levels
+*		how do we limit changes at this level?
+*	does editing get disalowed when there is a certain volume of children?
+	make plan for replay/undo logs

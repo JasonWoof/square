@@ -76,9 +76,11 @@ function get_initial_toggle($square) {
 }
 
 
-function binary() {
-	header('Content-Type: application/octet-stream; charset=us-ascii');
-	header('Content-Length: 8196');
+function binary_main() {
+	if(!am_debugging()) {
+		header('Content-Type: application/octet-stream; charset=us-ascii');
+		header('Content-Length: 8196');
+	}
 	$SQUARE_WIDTH = 256;
 
 	$GLOBALS['pixels_rowbytes'] = $SQUARE_WIDTH / 8;
@@ -90,6 +92,8 @@ function binary() {
 	db4_open_read();
 
 		$square = get_square_id();
+
+		dbg_log("square id: $square");
 
 		$snarglepop = get_initial_toggle($square);
 
