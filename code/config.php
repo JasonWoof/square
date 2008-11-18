@@ -1,5 +1,7 @@
 <?php
 
+require_once('code/db_connect.php');
+
 function am_debugging() {
 	return false;
 }

@@ -1,4 +1,8 @@
+php_flag register_globals off
 php_flag magic_quotes_gpc off
+Options -MultiViews
+AddDefaultCharset UTF-8
 RewriteEngine  on
-RewriteRule    ^.*.html$  /run.php [L]
 RewriteRule    ^$  /run.php
+RewriteRule    ^[^/]*\.html$  /run.php
+RewriteRule    ^[^/.]*$  /run.php

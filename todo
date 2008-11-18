@@ -3,7 +3,7 @@
 	make it so you can edit!
 		learn how to get coords of mouse clicks (see my color picker)
 
-	Figure out effecient way to store/retreive pixels
+	Figure out efficient way to store/retrieve pixels
 
 	              256    64    16      4     # tiles to create view
 	   2   4   8   16    32    64    128     # size of tile
@@ -32,7 +32,9 @@ record is a 16x16 subsection of parent. so has 64 children
 --- --- --- --- --- --- --- --- --- --- --- --- --- --- --- ---  cached add of below   64x64   mid layer 16 tiles
 - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  stored               128x128  easy layer 4 tiles
 
-abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_+
+	web address will pull from this charset
+		abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-
+		adding 0-2 periods at the end to show intermediate zoom levels
 
 easy sql/db4 implementation:
 	key is base-64 number of address to record (above)
@@ -44,6 +46,11 @@ easy sql/db4 implementation:
 NOTES
 	every 3 layers is one (base-64) address character
 	every address character (ie 3 zooms) is another db query
+	I'm using 128x128 tiles, display is 256x256
+	Initial view is "hard" one which needs 64 records:
+		select raw from tiles where url like "?"
+		grab 32x32 square from each tile
+	Once editing is enabled, it wolud be helpful to have one record with key "". This would allow painting 2px blocks on the 128x128 layer and 8x8 on the hard layer.
 
 TODO
 **	sketch out rendering hard layer
@@ -55,9 +62,8 @@ TODO
 		popular/recent path
 			to update (per changed pixel) update popcache set flip = 1 - flip where path = xxx;
 *			how do we know what's popular?
-	top level cached in every way
-		cache ends of paths
-		cache encoded 256x256 tiles from at least top three levels
-*		how do we limit changes at this level?
-*	does editing get disalowed when there is a certain volume of children?
+		top level cached in every way
+			cache ends of paths
+			cache encoded 256x256 tiles from at least top three levels
+*			reply to queries with cached value and update the cache periodically?
 	make plan for replay/undo logs
