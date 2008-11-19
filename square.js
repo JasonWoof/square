@@ -19,19 +19,17 @@ function load(square) {
 }
 
 function get_and_render(square, zoom) {
-	var url = 'binary.html';
+	var url = 'binary';
 	var sep = '?';
 
 	square_id = square; // set the global
 
-	if(square) {
-		url += '?square=' + square.toString();
-		sep = '&';
-	}
-	if(zoom == 0 || zoom == 1 || zoom == 2 || zoom == 3) {
-		url += sep + 'zoom=' + zoom.toString();
+	url += '?url=' + square;
+	if(zoom != false && zoom != 'out') {
+		url += zoom;
+		square_id += zoom;
 	} else if (zoom == 'out') {
-		url += sep + 'zoom=out';
+		// FIXME remove last char from url and square_id
 	}
 
 	sendRequest(url, call_me);
@@ -89,10 +87,10 @@ function squares(data) {
 	var square_num;
 	var i;
 
-	square_id  = (data.charCodeAt(0) & 0xff) << 24;
-	square_id |= (data.charCodeAt(1) & 0xff) << 16;
-	square_id |= (data.charCodeAt(2) & 0xff) << 8;
-	square_id |= (data.charCodeAt(3) & 0xff);
+	// square_id  = (data.charCodeAt(0) & 0xff) << 24;
+	// square_id |= (data.charCodeAt(1) & 0xff) << 16;
+	// square_id |= (data.charCodeAt(2) & 0xff) << 8;
+	// square_id |= (data.charCodeAt(3) & 0xff);
 
 	for(i = 4; i < data.length; ++i) {
 		in_pixels[i - 4] = (data.charCodeAt(i) & 0xff);
@@ -103,10 +101,12 @@ function squares(data) {
 	}
 }
 
-function click(which) {
-	get_and_render(square_id, which);
-	if(which != 'out') {
-		animate_zoom(which);
+function click(url, quadrant) {
+	if(url == 'out') {
+		get_and_render(square_id.substr(0, square_id.length - 1), false); // FIXME zoom out one, not all the way
+	} else {
+		get_and_render(square_id, url);
+		animate_zoom(quadrant);
 	}
 }
 

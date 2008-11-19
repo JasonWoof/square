@@ -9,38 +9,38 @@
   <script type="text/javascript" src="square.js"></script>
 </head>
 
-<body onload="load(~square_id~)">
+<body onload="load('~square_id~')">
 <p id="log"></p>
 <p class="first">Click in the box below to zoom into that quarter.</p>
-<div id="quadrant_0" class="quadrant" onclick="click(0)">
+<div id="quadrant_0" class="quadrant" onclick="click('1', 0)">
 <img id="square_0" class="square" src="loading.png" alt=""></img>
 <img id="square_1" class="square" src="loading.png" alt=""></img>
 <img id="square_4" class="square" src="loading.png" alt=""></img>
 <img id="square_5" class="square" src="loading.png" alt=""></img>
 </div>
 
-<div id="quadrant_1" class="quadrant" onclick="click(1)">
+<div id="quadrant_1" class="quadrant" onclick="click('B', 1)">
 <img id="square_2" class="square" src="loading.png" alt=""></img>
 <img id="square_3" class="square" src="loading.png" alt=""></img>
 <img id="square_6" class="square" src="loading.png" alt=""></img>
 <img id="square_7" class="square" src="loading.png" alt=""></img>
 </div>
 
-<div id="quadrant_2" class="quadrant" onclick="click(2)">
+<div id="quadrant_2" class="quadrant" onclick="click('F', 2)">
 <img id="square_8" class="square" src="loading.png" alt=""></img>
 <img id="square_9" class="square" src="loading.png" alt=""></img>
 <img id="square_c" class="square" src="loading.png" alt=""></img>
 <img id="square_d" class="square" src="loading.png" alt=""></img>
 </div>
 
-<div id="quadrant_3" class="quadrant" onclick="click(3)">
+<div id="quadrant_3" class="quadrant" onclick="click('Z', 3)">
 <img id="square_a" class="square" src="loading.png" alt=""></img>
 <img id="square_b" class="square" src="loading.png" alt=""></img>
 <img id="square_e" class="square" src="loading.png" alt=""></img>
 <img id="square_f" class="square" src="loading.png" alt=""></img>
 </div>
 
-<div id="zoom_out" onclick="click('out')">
+<div id="zoom_out" onclick="click('out', 0)">
 Zoom Out
 </div>
 

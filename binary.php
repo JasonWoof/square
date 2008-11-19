@@ -82,29 +82,26 @@ function get_initial_toggle($square) {
 
 
 function binary_main() {
+	if(isset($_REQUEST['url'])) {
+		$url = ereg_replace('[^a-zA-Z0-9_-]', '', $_REQUEST['url']); # FIXME handle end dots
+	} else {
+		$url = '';
+	}
+
 	if(!am_debugging()) {
 		header('Content-Type: application/octet-stream; charset=us-ascii');
 		header('Content-Length: 8196');
 	}
 	$SQUARE_WIDTH = 256;
 
-	$GLOBALS['pixels_rowbytes'] = $SQUARE_WIDTH / 8;
+	# $GLOBALS['pixels'] is an array of ints, because php won't let me use ^= on chars.
 	$GLOBALS['pixels'] = array_fill(0, 256 * 256 / 8, 255);
 
-	# NOTE: $GLOBALS['pixels'] is an array of ints, because php won't let me use ^= on chars.
-
-	# FIXME $square = get_square_id();
-	$url = ""; # root
-
-
-	dbg_log("square id: $square");
-
-	#$snarglepop = get_initial_toggle($square);
-	
-	$shadow = tile_get_128('');
+	# FIXME Get overlay of parents... There's more than one record to the shadow
+	$shadow = tile_get_128($url);
 	#$shadow = str_repeat("\000", 128 * 128 / 8); #FIXME
 
-	hard_square('', $shadow);
+	hard_square($url, $shadow);
 
 
 	# let the client know that it's looking at
@@ -119,7 +116,7 @@ function binary_main() {
 	#$GLOBALS['pixels'][3] = chr(0);
 	#$GLOBALS['pixels'][4] = 97;
 	#print("Foo: " . strlen($GLOBALS['pixels']) . "hah\n");
-	for($i = 0; $i < $SQUARE_WIDTH * $SQUARE_WIDTH/ 8; $i++) {
+	for($i = 0; $i < PIXELS_RB * 256; $i++) {
 		print(chr($GLOBALS['pixels'][$i]));
 	}
 }
