@@ -10,7 +10,8 @@ var in_box_vert = in_row_bytes * OUT_BOX_HEIGHT;
 var in_pixels;
 var square_names = ['square_0', 'square_1', 'square_2', 'square_3', 'square_4', 'square_5', 'square_6', 'square_7', 'square_8', 'square_9', 'square_a', 'square_b', 'square_c', 'square_d', 'square_e', 'square_f'];
 
-var square_id; // id number of current square
+var g_url; // id number of current square
+var g_charset = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz'; // id number of current square
 
 // this is called (exclusively) by the html page's body onload
 function load(square) {
@@ -18,21 +19,10 @@ function load(square) {
 	get_and_render(square, false);
 }
 
-function get_and_render(square, zoom) {
-	var url = 'binary';
-	var sep = '?';
+function get_and_render(url) {
+	g_url = url; // set the global
 
-	square_id = square; // set the global
-
-	url += '?url=' + square;
-	if(zoom != false && zoom != 'out') {
-		url += zoom;
-		square_id += zoom;
-	} else if (zoom == 'out') {
-		// FIXME remove last char from url and square_id
-	}
-
-	sendRequest(url, call_me);
+	sendRequest('binary?url=' + url, call_me);
 }
 
 function call_me(rec) {
@@ -87,10 +77,10 @@ function squares(data) {
 	var square_num;
 	var i;
 
-	// square_id  = (data.charCodeAt(0) & 0xff) << 24;
-	// square_id |= (data.charCodeAt(1) & 0xff) << 16;
-	// square_id |= (data.charCodeAt(2) & 0xff) << 8;
-	// square_id |= (data.charCodeAt(3) & 0xff);
+	// g_url  = (data.charCodeAt(0) & 0xff) << 24;
+	// g_url |= (data.charCodeAt(1) & 0xff) << 16;
+	// g_url |= (data.charCodeAt(2) & 0xff) << 8;
+	// g_url |= (data.charCodeAt(3) & 0xff);
 
 	for(i = 4; i < data.length; ++i) {
 		in_pixels[i - 4] = (data.charCodeAt(i) & 0xff);
@@ -101,18 +91,62 @@ function squares(data) {
 	}
 }
 
+// parameters:
+//   quadrant number 0-3
+//   zoom (width of a quadrant)
+function quadrant_to_offset(quadrant, zoom) {
+	var x = quadrant % 2;
+	var y = (quadrant - x) / 2;
+	return (y * 8 * zoom) + (x * zoom);
+}
+	
+
 // FIXME url parameter will change
 function click(url, quadrant) {
-	if(url == 'out') {
-		if(square_id == '') {
-			get_and_render(square_id, url);
-		} else if(square_id.substr(square_id.length - 2) == '..') {
-			get_and_render(square_id.substr(0, square_id.length - 3), false);
+	var letters;
+	var dots;
+
+	if(g_url == '') {
+		letters = '';
+		dots = '';
+	} else if(g_url.length == 1) {
+		letters = g_url;
+		dots = '';
+	} else {
+		if(g_url.substr(g_url.length - 2) == '..') {
+			letters = g_url.substr(0, g_url.length - 2);
+			dots = '..';
+		} else if(g_url.substr(g_url.length - 1) == '.') {
+			letters = g_url.substr(0, g_url.length - 1);
+			dots = '.';
 		} else {
-			get_and_render(square_id + '.', false);
+			letters = g_url;
+			dots = '';
+		}
+	}
+
+	if(url == 'out') {
+		if(g_url == '') {
+			get_and_render(g_url);
+		} else if(dots == '..') {
+			get_and_render(letters.substr(0, letters.length - 1));
+		} else {
+			get_and_render(letters + dots + '.');
 		}
 	} else {
-		get_and_render(square_id, url);
+		if(dots == '') {
+			get_and_render(letters + g_charset.charAt(quadrant_to_offset(quadrant, 4))  + '..');
+		} else {
+			var last = letters.substr(letters.length - 1);
+			var offset = g_charset.indexOf(last);
+			if(dots == '..') {
+				offset += quadrant_to_offset(quadrant, 2);
+				get_and_render(letters.substr(0, letters.length - 1) + g_charset.charAt(offset) + '.');
+			} else {
+				offset += quadrant_to_offset(quadrant, 1);
+				get_and_render(letters.substr(0, letters.length - 1) + g_charset.charAt(offset));
+			}
+		}
 		animate_zoom(quadrant);
 	}
 }
