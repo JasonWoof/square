@@ -1,0 +1,27 @@
+SQUARE
+
+This is a project to create a collaborative online art project. It is still in
+early development. When released you will be able to:
+
+1) Click on the square to zoom in.
+
+2) Choose a "brush" size, and click to edit the square.
+
+Editing the square consists of polarizing a square of any size. All squares are
+fully alligned to their own grid size.
+
+Polarizing means that everithing within it that was white is now black and vice
+versa.
+
+To display, the client sends a single AJAX request and the server sends back a
+bitmap. The client (completely in javascript) slices this up and encodes it
+into 16 PNG images, which are tiled to make the square you see. This encoding
+is done on the client so that editing can be done locally, and server
+communication is needed only to save.
+
+
+STATUS
+
+Editing is currently not implemented at all.
+
+Zooming is only partially implemented.
