@@ -101,9 +101,16 @@ function squares(data) {
 	}
 }
 
+// FIXME url parameter will change
 function click(url, quadrant) {
 	if(url == 'out') {
-		get_and_render(square_id.substr(0, square_id.length - 1), false); // FIXME zoom out one, not all the way
+		if(square_id == '') {
+			get_and_render(square_id, url);
+		} else if(square_id.substr(square_id.length - 2) == '..') {
+			get_and_render(square_id.substr(0, square_id.length - 3), false);
+		} else {
+			get_and_render(square_id + '.', false);
+		}
 	} else {
 		get_and_render(square_id, url);
 		animate_zoom(quadrant);
