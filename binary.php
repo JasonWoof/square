@@ -46,8 +46,9 @@ function hard_square($url, $shadow) {
 	$si = 0; # shadow index
 	$ti = 0; # tile index
 	$oi = 0; # output index
+	$tiles = get_hard_tiles($url);
 	for($tile_number = 0; $tile_number < 64; ++$tile_number) { # TODO make sure this loops l->r t->b
-		$tile = tile_get_32($url . $GLOBALS['url_chars_a'][$tile_number]); # TODO try fetching all at once
+		$tile = $tiles[$tile_number];
 		$ti = 0;
 		$oi = (($tile_number % 8) * 4) + (floor($tile_number / 8) * 1024);
 		$si = (($tile_number % 8) * 2) + (floor($tile_number / 8) * 256);

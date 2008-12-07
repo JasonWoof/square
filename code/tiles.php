@@ -31,6 +31,32 @@ define('PIXELS_RB2', 64);
 define('PIXELS_RB3', 96); 
 define('PIXELS_RB7', 224); 
 
+function get_hard_tiles($url) {
+	$query = '';
+	foreach($GLOBALS['url_chars_a'] as $c) {
+		if($query) {
+			$query .= ' || ';
+		}
+		$query .= ' url="' . $url . $c . '"';
+	}
+	$rows = db_get_rows('tiles', 'url,t32', $quere);
+	$ut = array();
+	foreach($rows as $row) {
+		list($u, $t) = $row;
+		$ut[$u] = $t;
+	}
+	$ret = array();
+	foreach($GLOBALS['url_chars_a'] as $c) {
+		if(isset($ut[$url . $c])) {
+			$ret[] = $ut[$url . $c];
+		} else {
+			$ret[] = str_repeat("\000", 32 * 32 / 8);
+		}
+	}
+
+	return $ret;
+}
+
 function get_medium_tiles($url) {
 	$base = substr($url, 0, -1);
 	$last = substr($url, -1);
