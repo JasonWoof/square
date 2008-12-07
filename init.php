@@ -187,11 +187,11 @@ function create_random_square() {
 		$GLOBALS['pixels'][PIXELS_RB] = 0x00;
 
 		# draw some random boxes
-		$num_boxes = rand(20, 155);
+		$num_boxes = rand(100, 2055);
 		for($i = 0; $i < $num_boxes; ++$i) {
-			$size = 1 << rand(1, 5);
+			$size = 1 << rand(0, 2);
 			$x = rand(0, 255);
-			$y = rand(0, 256);
+			$y = rand(0, 255);
 			$x -= $x % $size;
 			$y -= $y % $size;
 			color_square($x, $y, $size);
