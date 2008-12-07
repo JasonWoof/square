@@ -99,10 +99,21 @@ function quadrant_to_offset(quadrant, zoom) {
 	var y = (quadrant - x) / 2;
 	return (y * 8 * zoom) + (x * zoom);
 }
-	
 
-// FIXME url parameter will change
-function click(url, quadrant) {
+
+// rount c down, so it's in the top left of the POWxPOW tile it's in
+function quantize_url_char(c, pow) {
+	c = g_charset.indexOf(c);
+	var x = c % 8;
+	var y = Math.floor(c / 8);
+
+	x = Math.floor(x / pow) * pow;
+	y = Math.floor(y / pow) * pow;
+	return g_charset.charAt((y * 8) + x);
+}
+
+
+function click(quadrant) {
 	var letters;
 	var dots;
 
@@ -125,13 +136,20 @@ function click(url, quadrant) {
 		}
 	}
 
-	if(url == 'out') {
+	if(quadrant == 'out') {
 		if(g_url == '') {
 			get_and_render(g_url);
 		} else if(dots == '..') {
 			get_and_render(letters.substr(0, letters.length - 1));
 		} else {
-			get_and_render(letters + dots + '.');
+			var base = letters.substr(0, letters.length - 1);
+			var last = letters.substr(letters.length - 1);
+			if(dots == '') {
+				last = quantize_url_char(last, 2);
+			} else { // dots == '.'
+				last = quantize_url_char(last, 4);
+			}
+			get_and_render(base + last + dots + '.');
 		}
 	} else {
 		if(dots == '') {
