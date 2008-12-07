@@ -9,6 +9,7 @@ var in_box_bytes = in_row_bytes / 4;
 var in_box_vert = in_row_bytes * OUT_BOX_HEIGHT;
 var in_pixels;
 var square_names = ['square_0', 'square_1', 'square_2', 'square_3', 'square_4', 'square_5', 'square_6', 'square_7', 'square_8', 'square_9', 'square_a', 'square_b', 'square_c', 'square_d', 'square_e', 'square_f'];
+var squares_tb, squares_bt, squares_lr, squares_rl;
 var g_blank = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX///+nxBvIAAAACklEQVQIHWNgAAAAAgABz8g15QAAAABJRU5ErkJggg==';
 
 var g_url; // id number of current square
@@ -66,21 +67,36 @@ function squares_init() {
 	var t;
 	var l;
 	var q;
+	var square;
+	var lr;
+
+	squares_rl = new Array(16);
+	squares_lr = new Array(16);
+	squares_tb = new Array(16);
+	squares_bt = new Array(16);
+
 	frame.empty();
 	for(i = 0; i < 16; ++i) {
 		t = Math.floor(i / 4) * 128;
 		l = (i % 4) * 128;
 		q = Math.floor(l / 256) + (2 * Math.floor(t / 256));
 		frame.append('<img class="square" id="' + square_names[i] + '" src="' + g_blank + '" style="top: ' + t + 'px; left: ' + l + 'px" />');
-		if(q = 0) {
-			$('#' + square_names[i]).bind('click', zoom_tl);
-		} else if(q = 1) {
-			$('#' + square_names[i]).bind('click', zoom_tr);
-		} else if(q = 2) {
-			$('#' + square_names[i]).bind('click', zoom_bl);
+		square = $('#' + square_names[i]);
+		if(q == 0) {
+			square.bind('click', zoom_tl);
+		} else if(q == 1) {
+			square.bind('click', zoom_tr);
+		} else if(q == 2) {
+			square.bind('click', zoom_bl);
 		} else {
-			$('#' + square_names[i]).bind('click', zoom_br);
+			square.bind('click', zoom_br);
 		}
+		square = square.get(0);
+		squares_tb[i] = square;
+		squares_bt[15 - i] = square;
+		lr = ((i & 0x3) << 2) | (i >> 2);
+		squares_lr[lr] = square;
+		squares_rl[15 - lr] = square;
 	}
 }
 
@@ -92,6 +108,17 @@ function render_square(square_num) {
 	tag(square_names[square_num]).src = 'data:image/png;base64,' + png;
 	tag(square_names[square_num]).style.width = '128px';
 	tag(square_names[square_num]).style.height = '128px';
+}
+
+// put them back in their original size/location
+function unzoom_squares() {
+	var i;
+	for(i = 0; i < 16; ++i) {
+		squares_tb[i].style.height = 128 + 'px';
+		squares_tb[i].style.width = 128 + 'px';
+		squares_tb[i].style.top = Math.floor(i / 4) * 128 + 'px';
+		squares_tb[i].style.left = (i % 4) * 128 + 'px';
+	}
 }
 
 
@@ -111,6 +138,8 @@ function squares(data) {
 	for(square_num = 0; square_num < 16; square_num++) {
 		render_square(square_num);
 	}
+
+	unzoom_squares();
 }
 
 // parameters:
@@ -224,77 +253,81 @@ var VERTI  = ANIM_VS | ANIM_HG;
 var SHRINK = ANIM_VS | ANIM_HS;
 var EXPAND = ANIM_VG | ANIM_HG;
 
-var h_shrinkers = new Array(8);
-var v_shrinkers = new Array(8);
-var h_expanders = new Array(8);
-var v_expanders = new Array(8);
 var animating = false;
 var animator_id;
 var pixels_to_animate;
+var animate_dx;
+var animate_dy;
 var data_ready;
 var data_that_is_ready;
+var animate_speed = 16;
 
 function animate_zoom(which) {
-	var i;
-	var quad_act = new Array(4);
-	var flags;
-	var hs_index = 0;
-	var vs_index = 0;
-	var hg_index = 0;
-	var vg_index = 0;
+	if(which < 2) {
+		animate_dy = 1;
+	} else {
+		animate_dy = -1;
+	}
 
-	quad_act[which] = EXPAND;
-	quad_act[which^1] = HORIZ;
-	quad_act[which^2] = VERTI;
-	quad_act[which^3] = SHRINK;
-
-	for(i = 0; i < 16; i++) {
-		flags = quad_act[square_num_to_quadrant(i)];
-		if(flags & ANIM_HS) {
-			h_shrinkers[hs_index++] = i;
-		}
-		if(flags & ANIM_VS) {
-			v_shrinkers[vs_index++] = i;
-		}
-		if(flags & ANIM_HG) {
-			h_expanders[hg_index++] = i;
-		}
-		if(flags & ANIM_VG) {
-			v_expanders[vg_index++] = i;
-		}
+	if(which % 2) {
+		animate_dx = -1;
+	} else {
+		animate_dx = 1;
 	}
 
 	animating = true;
-	pixels_to_animate = 126;
+	pixels_to_animate = 128;
 	animator_id = setInterval('animate_frame()', 100);
 }
 
 function animate_frame() {
-	var i;
-	pixels_to_animate -= 13;
-	if(pixels_to_animate < 1) {
-		pixels_to_animate = 1;
-	}
-	
-	for(i = 0; i < 8; i++) {
-		tag(square_names[h_shrinkers[i]]).style.width = pixels_to_animate.toString() + 'px';
-	}
-	for(i = 0; i < 8; i++) {
-		tag(square_names[v_shrinkers[i]]).style.height = pixels_to_animate.toString() + 'px';
-	}
-	for(i = 0; i < 8; i++) {
-		tag(square_names[h_expanders[i]]).style.width = (256 - pixels_to_animate).toString() + 'px';
-	}
-	for(i = 0; i < 8; i++) {
-		tag(square_names[v_expanders[i]]).style.height = (256 - pixels_to_animate).toString() + 'px';
+	var i, j, xcur, ycur;
+	var xsquares, yquares;
+	var size;
+	if(pixels_to_animate && pixels_to_animate < animate_speed) {
+		pixels_to_animate = animate_speed;
 	}
 
-	if(pixels_to_animate == 1) {
+	if(pixels_to_animate == 0 || (pixels_to_animate <= animate_speed && data_ready)) {
 		animating = false;
 		clearInterval(animator_id);
 		if(data_ready) {
 			data_ready = false;
 			squares(data_that_is_ready);
+		}
+		return;
+	}
+	
+	pixels_to_animate -= animate_speed;
+
+	size = 256 - pixels_to_animate; // new size
+
+	// rows/columns move move by animate-speed + tile-size
+	if(animate_dx < 0) {
+		xsquares = squares_rl;
+		xcur = 512 - size;
+	} else {
+		xsquares = squares_lr;
+		xcur = 0;
+	}
+	if(animate_dy < 0) {
+		ysquares = squares_bt;
+		ycur = 512 - size;
+	} else {
+		ysquares = squares_tb;
+		ycur = 0;
+	}
+	for(i = 0; i < 16; ) {
+		xsquares[i].style.left = xcur + 'px';
+		xsquares[i].style.width = size + 'px';
+		xsquares[i].width = size;
+		ysquares[i].style.top = ycur + 'px';
+		ysquares[i].style.height = size + 'px';
+		ysquares[i].height = size;
+		i++;
+		if(i % 4 == 0) {
+			xcur += size * animate_dx;
+			ycur += size * animate_dy;
 		}
 	}
 }
