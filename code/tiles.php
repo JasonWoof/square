@@ -15,7 +15,6 @@ $GLOBALS['url_chars_a'] = str_split(URL_CHARS);
 
 
 
-
 # bytes per row
 define('T32_RB', 4); 
 define('T32_RB2', 8); 
@@ -26,9 +25,11 @@ define('T64_RB3', 24);
 define('T128_RB', 16); 
 define('T128_RB2', 32); 
 define('T128_RB3', 48); 
+define('T128_RB7', 112); 
 define('PIXELS_RB', 32); 
 define('PIXELS_RB2', 64); 
 define('PIXELS_RB3', 96); 
+define('PIXELS_RB7', 224); 
 
 function get_medium_tiles($url) {
 	$base = substr($url, 0, -1);
@@ -46,6 +47,22 @@ function get_medium_tiles($url) {
 			$ret[] = tile_get_64($base . $GLOBALS['url_chars_a'][$x + $y + $qx + $qy]);
 		}
 	}
+
+	return $ret;
+}
+
+function get_easy_tiles($url) {
+	$base = substr($url, 0, -1);
+	$last = substr($url, -1);
+	$pos = strpos(URL_CHARS, $last);
+	if($pos === false) {
+		die('invalid url');
+	}
+	$ret = array();
+	$ret[] = tile_get_128($base . $GLOBALS['url_chars_a'][$pos]);
+	$ret[] = tile_get_128($base . $GLOBALS['url_chars_a'][$pos + 1]);
+	$ret[] = tile_get_128($base . $GLOBALS['url_chars_a'][$pos + 8]);
+	$ret[] = tile_get_128($base . $GLOBALS['url_chars_a'][$pos + 9]);
 
 	return $ret;
 }

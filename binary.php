@@ -115,6 +115,24 @@ function medium_shadow($url) {
 	return $shadow;
 }
 
+# fetch the parent 128x128 tile and return the correct 32x32 piece (no scaling)
+function easy_shadow($url) {
+	$parent = tile_get_128(substr($url, 0, -1));
+	$shadow = '';
+	$pos = strpos(URL_CHARS, substr($url, -1));
+	if($pos === false) {
+		die('invalid url');
+	}
+	$qx = floor(($pos % 8) / 2) * T32_RB;
+	$qy = floor($pos / 16) * T128_RB * 32;
+
+	for($y = 0; $y < 32; ++$y) {
+		$shadow .= substr($parent, $qx + $qy + ($y * T128_RB), T32_RB);
+	}
+
+	return $shadow;
+}
+
 # for a medium square: shadow is a 64x64 grid
 # we pull data from the 64x64 data set in the tile table
 function medium_square($url, $shadow) {
@@ -130,7 +148,7 @@ function medium_square($url, $shadow) {
 		# there is a 16x16 part of the shadow covering our tile. 2 is the byte width:
 		for($rows = 0; $rows < 16; ++$rows) { # we do four rows at once to match shadow
 			for($cols = 0; $cols < 2; ++$cols) { # we do four cols at once to match shadow
-				$s = ord($shadow[$si]); # used for this whole for block
+				$s = ord($shadow[$si]); # used for this whole context
 
 				$s8 = high_2_to_8($s); # used for the next 4 pixels
 
@@ -218,10 +236,54 @@ function medium_square($url, $shadow) {
 
 
 
-# for an easy square,   ?we are passed a full 128x128 grid?
+# for an easy square, we are passed a 32x32 grid
 # we pull data from the 128x128 data set in the tile table
 function easy_square($url, $shadow) {
 	# FIXME
+	$si = 0; # shadow index
+	$ti = 0; # tile index
+	$oi = 0; # output index
+	$tiles = get_easy_tiles($url);
+	for($tile_number = 0; $tile_number < 4; ++$tile_number) {
+		$tile = $tiles[$tile_number];
+		$ti = 0;
+		$oi = (($tile_number % 2) * 16) + (floor($tile_number / 2) * 4096);
+		$si = (($tile_number % 2) * 2) + (floor($tile_number / 2) * 64);
+		# there is a 16x16 part of the shadow covering our tile. 2 is the byte width:
+		for($rows = 0; $rows < 16; ++$rows) { # we do eight rows at once to match shadow
+			for($cols = 0; $cols < 2; ++$cols) { # we do eight cols at once to match shadow
+				$s = ord($shadow[$si]); # used for this whole context
+
+				for($i = 0; $i < 8; ++$i) { # horizontal
+					$mask = $s & 0x80; $s = $s << 1; # pop high bit
+					# fan out bit
+					$mask |= ($mask >> 1) | ($mask >> 2) | ($mask >> 3);
+					$mask |=  ($mask >> 4);
+
+					$tmp_ti = $ti;
+					$tmp_oi = $oi;
+					for($j = 0; $j < 8; ++$j) {
+						$p8 = ord($tile[$tmp_ti]);
+						$GLOBALS['pixels'][$tmp_oi] = $p8 ^ $mask;
+						$tmp_ti += T128_RB;
+						$tmp_oi += PIXELS_RB;
+					}
+
+					++$ti;
+					++$oi;
+				}
+
+				# we finished the shadow byte
+				++$si;
+
+			}
+			# end of the row, reset pointers for next row
+			$ti += T128_RB7; # we advanced 1 row already
+			$oi += 16; # we advanced 16, and the row is 32
+			$oi += PIXELS_RB7; # we did these next rows already
+			$si += 2; # we advanced 2 and the row is 4
+		}
+	}
 }
 
 
@@ -270,6 +332,7 @@ function binary_main() {
 			medium_square($url, $shadow);
 		break;
 		case '.':
+			$shadow = easy_shadow($url);
 			easy_square($url, $shadow);
 		break;
 		default:
