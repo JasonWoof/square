@@ -9,6 +9,7 @@ var in_box_bytes = in_row_bytes / 4;
 var in_box_vert = in_row_bytes * OUT_BOX_HEIGHT;
 var in_pixels;
 var square_names = ['square_0', 'square_1', 'square_2', 'square_3', 'square_4', 'square_5', 'square_6', 'square_7', 'square_8', 'square_9', 'square_a', 'square_b', 'square_c', 'square_d', 'square_e', 'square_f'];
+var g_blank = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX///+nxBvIAAAACklEQVQIHWNgAAAAAgABz8g15QAAAABJRU5ErkJggg==';
 
 var g_url; // id number of current square
 var g_charset = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz'; // id number of current square
@@ -16,7 +17,7 @@ var g_charset = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxy
 // this is called (exclusively) by the html page's body onload
 function load(square) {
 	squares_init()
-	get_and_render(square, false);
+	get_and_render(square);
 }
 
 function get_and_render(url) {
@@ -60,6 +61,27 @@ function make_square(square_num) {
 function squares_init() {
 	in_pixels = new Array(IN_WIDTH * IN_WIDTH / 8);
 	png_init(width, height);
+	var frame = $('#square_frame');
+	var i;
+	var t;
+	var l;
+	var q;
+	frame.empty();
+	for(i = 0; i < 16; ++i) {
+		t = Math.floor(i / 4) * 128;
+		l = (i % 4) * 128;
+		q = Math.floor(l / 256) + (2 * Math.floor(t / 256));
+		frame.append('<img class="square" id="' + square_names[i] + '" src="' + g_blank + '" style="top: ' + t + 'px; left: ' + l + 'px" />');
+		if(q = 0) {
+			$('#' + square_names[i]).bind('click', zoom_tl);
+		} else if(q = 1) {
+			$('#' + square_names[i]).bind('click', zoom_tr);
+		} else if(q = 2) {
+			$('#' + square_names[i]).bind('click', zoom_bl);
+		} else {
+			$('#' + square_names[i]).bind('click', zoom_br);
+		}
+	}
 }
 
 function render_square(square_num) {
@@ -112,6 +134,10 @@ function quantize_url_char(c, pow) {
 	return g_charset.charAt((y * 8) + x);
 }
 
+function zoom_tl() { click(0); }
+function zoom_tr() { click(1); }
+function zoom_bl() { click(2); }
+function zoom_br() { click(3); }
 
 function click(quadrant) {
 	var letters;

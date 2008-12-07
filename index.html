@@ -4,45 +4,27 @@
 <head>
   <title></title>
   <link rel="stylesheet" href="style.css" type="text/css" />
+  <script type="text/javascript" src="jquery.js"></script>
   <script type="text/javascript" src="png.js"></script>
   <script type="text/javascript" src="http.js"></script>
   <script type="text/javascript" src="square.js"></script>
 </head>
 
 <body onload="load('~square_id~')">
+<div id="square_frame">
+  <div id="loading">Loading... If this message does not dissapear momentarily, then you'll probably have to enable javascript.</div>
+</div>
+
+<div id="panel"><div id="panel_inner">
+  <h3 class="first">Click anywhere in the box to the left to zoom in.</h3>
+
+  <div id="zoom_out" onclick="click('out')">Zoom Out</div>
+
+  <div id="copyright"><a href="http://github.com/JasonWoof/square/tree/master">The code</a> that runs this website is licensed under the <a href="http://www.gnu.org/licenses/agpl.html">GNU AGPL</a>.</div>
+</div></div>
+
 <p id="log"></p>
-<p class="first">Click in the box below to zoom into that quarter.</p>
-<div id="quadrant_0" class="quadrant" onclick="click(0)">
-<img id="square_0" class="square" src="loading.png" alt=""></img>
-<img id="square_1" class="square" src="loading.png" alt=""></img>
-<img id="square_4" class="square" src="loading.png" alt=""></img>
-<img id="square_5" class="square" src="loading.png" alt=""></img>
-</div>
 
-<div id="quadrant_1" class="quadrant" onclick="click(1)">
-<img id="square_2" class="square" src="loading.png" alt=""></img>
-<img id="square_3" class="square" src="loading.png" alt=""></img>
-<img id="square_6" class="square" src="loading.png" alt=""></img>
-<img id="square_7" class="square" src="loading.png" alt=""></img>
-</div>
-
-<div id="quadrant_2" class="quadrant" onclick="click(2)">
-<img id="square_8" class="square" src="loading.png" alt=""></img>
-<img id="square_9" class="square" src="loading.png" alt=""></img>
-<img id="square_c" class="square" src="loading.png" alt=""></img>
-<img id="square_d" class="square" src="loading.png" alt=""></img>
-</div>
-
-<div id="quadrant_3" class="quadrant" onclick="click(3)">
-<img id="square_a" class="square" src="loading.png" alt=""></img>
-<img id="square_b" class="square" src="loading.png" alt=""></img>
-<img id="square_e" class="square" src="loading.png" alt=""></img>
-<img id="square_f" class="square" src="loading.png" alt=""></img>
-</div>
-
-<div id="zoom_out" onclick="click('out')">
-Zoom Out
-</div>
 
   <!-- Put a big scary warning at the top for people who don't support inline images -->
   <div style="background: transparent; position: absolute; top: -10px; left: -10px; width: 500px">
@@ -57,7 +39,6 @@ Zoom Out
     </object>
   </div>
 
-  <div id="agpl_footer"><a href="http://github.com/JasonWoof/square/tree/master">The code</a> that runs this website is licensed under the <a href="http://www.gnu.org/licenses/agpl.html">AGPL</a>.</div>
 
 </body>
 </html>
