@@ -314,7 +314,7 @@ function binary_main() {
 
 	if(!am_debugging()) {
 		header('Content-Type: application/octet-stream; charset=us-ascii');
-		header('Content-Length: 8196');
+		header('Content-Length: 8192');
 	}
 	$SQUARE_WIDTH = 256;
 
@@ -342,18 +342,6 @@ function binary_main() {
 	
 
 
-	# let the client know that it's looking at
-	print(chr($square >> 24));
-	print(chr(($square >> 16) & 0xff));
-	print(chr(($square >> 8) & 0xff));
-	print(chr($square & 0xff));
-
-	#$GLOBALS['pixels'][0] = 95;
-	#$GLOBALS['pixels'][1] = "\000";
-	#$GLOBALS['pixels'][2] = 98;
-	#$GLOBALS['pixels'][3] = chr(0);
-	#$GLOBALS['pixels'][4] = 97;
-	#print("Foo: " . strlen($GLOBALS['pixels']) . "hah\n");
 	for($i = 0; $i < PIXELS_RB * 256; $i++) {
 		print(chr($GLOBALS['pixels'][$i]));
 	}

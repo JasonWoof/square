@@ -38,12 +38,21 @@ body {
 	border: 2px solid #888;
 }
 
-.square {
+.front_square, .back_square {
 	width: 128px;
 	height: 128px;
 	display: block;
 	position: absolute;
+	cursor: pointer;
 	cursor: -moz-zoom-in;
+}
+
+.front_square {
+	z-index: 1
+}
+
+.back_square {
+	z-index: 0
 }
 
 #zoom_out {
@@ -54,6 +63,7 @@ body {
 	background: #ddd;
 	color: black;
 	padding: 3px;
+	cursor: pointer;
 }
 #zoom_out:hover {
 	border: 2px solid #ccc;

@@ -8,8 +8,10 @@ var in_row_bytes = IN_WIDTH / 8;
 var in_box_bytes = in_row_bytes / 4;
 var in_box_vert = in_row_bytes * OUT_BOX_HEIGHT;
 var in_pixels;
-var square_names = ['square_0', 'square_1', 'square_2', 'square_3', 'square_4', 'square_5', 'square_6', 'square_7', 'square_8', 'square_9', 'square_a', 'square_b', 'square_c', 'square_d', 'square_e', 'square_f'];
 var squares_tb, squares_bt, squares_lr, squares_rl;
+var front_squares_tb, front_squares_bt, front_squares_lr, front_squares_rl;
+var g_editor_toggle = false;
+var back_squares_tb, back_squares_bt, back_squares_lr, back_squares_rl;
 var g_blank = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX///+nxBvIAAAACklEQVQIHWNgAAAAAgABz8g15QAAAABJRU5ErkJggg==';
 
 var g_url; // id number of current square
@@ -36,6 +38,38 @@ function call_me(rec) {
 	}
 }
 
+var g_z = 0;
+
+// change which set of images are displayed
+function toggle_display() {
+	++g_z;
+	if(g_editor_toggle) {
+		setTimeout("$('.back_square').css('z-index', g_z)", 10);
+		// $('.front_square').css('top', '-500px');
+		// $('.front_square').hide();
+	} else {
+		setTimeout("$('.front_square').css('z-index', g_z)", 10);
+		// $('.front_square').show();
+	}
+}
+
+// change which set of images the editor works with
+function toggle_editor() {
+	if(g_editor_toggle) {
+		g_editor_toggle = false;
+		squares_rl = front_squares_rl;
+		squares_lr = front_squares_lr;
+		squares_bt = front_squares_bt;
+		squares_tb = front_squares_tb;
+	} else {
+		g_editor_toggle = true;
+		squares_rl = back_squares_rl;
+		squares_lr = back_squares_lr;
+		squares_bt = back_squares_bt;
+		squares_tb = back_squares_tb;
+	}
+}
+
 function make_square(square_num) {
 	var index;
 	var i;
@@ -59,6 +93,7 @@ function make_square(square_num) {
 	}
 }
 
+
 function squares_init() {
 	in_pixels = new Array(IN_WIDTH * IN_WIDTH / 8);
 	png_init(width, height);
@@ -70,18 +105,23 @@ function squares_init() {
 	var square;
 	var lr;
 
-	squares_rl = new Array(16);
-	squares_lr = new Array(16);
-	squares_tb = new Array(16);
-	squares_bt = new Array(16);
+	front_squares_rl = new Array(16);
+	front_squares_lr = new Array(16);
+	front_squares_tb = new Array(16);
+	front_squares_bt = new Array(16);
+	back_squares_rl = new Array(16);
+	back_squares_lr = new Array(16);
+	back_squares_tb = new Array(16);
+	back_squares_bt = new Array(16);
 
 	frame.empty();
 	for(i = 0; i < 16; ++i) {
-		t = Math.floor(i / 4) * 128;
-		l = (i % 4) * 128;
-		q = Math.floor(l / 256) + (2 * Math.floor(t / 256));
-		frame.append('<img class="square" id="' + square_names[i] + '" src="' + g_blank + '" style="top: ' + t + 'px; left: ' + l + 'px" />');
-		square = $('#' + square_names[i]);
+		frame.append('<img class="back_square" src="' + g_blank + '" style="top: -500px; left: -500px" />');
+		frame.append('<img class="front_square" src="' + g_blank + '" style="top: -500px; left: -500px" />');
+	}
+	$('.front_square').each(function(i, dom) {
+		q = Math.floor((i % 4) / 2) + (2 * Math.floor(i / 8));
+		square = $(dom);
 		if(q == 0) {
 			square.bind('click', zoom_tl);
 		} else if(q == 1) {
@@ -91,13 +131,32 @@ function squares_init() {
 		} else {
 			square.bind('click', zoom_br);
 		}
-		square = square.get(0);
-		squares_tb[i] = square;
-		squares_bt[15 - i] = square;
+		square = dom;
+		front_squares_tb[i] = square;
+		front_squares_bt[15 - i] = square;
 		lr = ((i & 0x3) << 2) | (i >> 2);
-		squares_lr[lr] = square;
-		squares_rl[15 - lr] = square;
-	}
+		front_squares_lr[lr] = square;
+		front_squares_rl[15 - lr] = square;
+	});
+	$('.back_square').each(function(i, dom) {
+		q = Math.floor((i % 4) / 2) + (2 * Math.floor(i / 8));
+		square = $(dom);
+		if(q == 0) {
+			square.bind('click', zoom_tl);
+		} else if(q == 1) {
+			square.bind('click', zoom_tr);
+		} else if(q == 2) {
+			square.bind('click', zoom_bl);
+		} else {
+			square.bind('click', zoom_br);
+		}
+		square = dom;
+		back_squares_tb[i] = square;
+		back_squares_bt[15 - i] = square;
+		lr = ((i & 0x3) << 2) | (i >> 2);
+		back_squares_lr[lr] = square;
+		back_squares_rl[15 - lr] = square;
+	});
 }
 
 function render_square(square_num) {
@@ -105,9 +164,7 @@ function render_square(square_num) {
 
 	make_square(square_num);
 	png = make_png();
-	tag(square_names[square_num]).src = 'data:image/png;base64,' + png;
-	tag(square_names[square_num]).style.width = '128px';
-	tag(square_names[square_num]).style.height = '128px';
+	squares_tb[square_num].src = 'data:image/png;base64,' + png;
 }
 
 // put them back in their original size/location
@@ -116,8 +173,8 @@ function unzoom_squares() {
 	for(i = 0; i < 16; ++i) {
 		squares_tb[i].style.height = 128 + 'px';
 		squares_tb[i].style.width = 128 + 'px';
-		squares_tb[i].style.top = Math.floor(i / 4) * 128 + 'px';
 		squares_tb[i].style.left = (i % 4) * 128 + 'px';
+		squares_tb[i].style.top = Math.floor(i / 4) * 128 + 'px';
 	}
 }
 
@@ -126,20 +183,19 @@ function squares(data) {
 	var square_num;
 	var i;
 
-	// g_url  = (data.charCodeAt(0) & 0xff) << 24;
-	// g_url |= (data.charCodeAt(1) & 0xff) << 16;
-	// g_url |= (data.charCodeAt(2) & 0xff) << 8;
-	// g_url |= (data.charCodeAt(3) & 0xff);
-
-	for(i = 4; i < data.length; ++i) {
-		in_pixels[i - 4] = (data.charCodeAt(i) & 0xff);
+	for(i = 0; i < data.length; ++i) {
+		in_pixels[i] = (data.charCodeAt(i) & 0xff);
 	}
+
+	toggle_editor();
 
 	for(square_num = 0; square_num < 16; square_num++) {
 		render_square(square_num);
 	}
 
 	unzoom_squares();
+
+	toggle_display();
 }
 
 // parameters:
@@ -171,6 +227,10 @@ function zoom_br() { click(3); }
 function click(quadrant) {
 	var letters;
 	var dots;
+
+	if(animating) {
+		return;
+	}
 
 	if(g_url == '') {
 		letters = '';
@@ -288,16 +348,6 @@ function animate_frame() {
 		pixels_to_animate = animate_speed;
 	}
 
-	if(pixels_to_animate == 0 || (pixels_to_animate <= animate_speed && data_ready)) {
-		animating = false;
-		clearInterval(animator_id);
-		if(data_ready) {
-			data_ready = false;
-			squares(data_that_is_ready);
-		}
-		return;
-	}
-	
 	pixels_to_animate -= animate_speed;
 
 	size = 256 - pixels_to_animate; // new size
@@ -320,14 +370,22 @@ function animate_frame() {
 	for(i = 0; i < 16; ) {
 		xsquares[i].style.left = xcur + 'px';
 		xsquares[i].style.width = size + 'px';
-		xsquares[i].width = size;
-		ysquares[i].style.top = ycur + 'px';
 		ysquares[i].style.height = size + 'px';
-		ysquares[i].height = size;
+		ysquares[i].style.top = ycur + 'px';
 		i++;
 		if(i % 4 == 0) {
 			xcur += size * animate_dx;
 			ycur += size * animate_dy;
 		}
+	}
+
+	if(pixels_to_animate == 0) {
+		animating = false;
+		clearInterval(animator_id);
+		if(data_ready) {
+			data_ready = false;
+			setTimeout('squares(data_that_is_ready)', 10);
+		}
+		return;
 	}
 }
