@@ -308,7 +308,6 @@ function get_initial_toggle($url, $dots) {
 		header("X-Initial-Toggle-Note: Only $zooms zooms.");
 		return 0;
 	}
-	$zooms -= 6;
 
 	$url_chars = 0;
 	$toggle = 0;
@@ -330,9 +329,9 @@ function get_initial_toggle($url, $dots) {
 		$y += floor($ch2 / 8) * 2;
 		$y += floor(($ch3 / 8) / 4);
 
-		$toggle ^= (ord(substr($t128, ($y * T128_RB) + floor($x / 8), 1)) >> ($x % 8)) & 1;
+		$toggle ^= (ord(substr($t128, ($y * T128_RB) + floor($x / 8), 1)) >> (7 - ($x % 8))) & 1;
 
-		$url_chars += 2;
+		$url_chars += 1;
 	}
 
 	header("X-Initial-Toggle-Note: initial toggle: $toggle.");
