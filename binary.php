@@ -40,7 +40,7 @@ function lomid_2_to_8($hi2) {
 	return low_2_to_8($hi2 >> 2);
 }
 
-# for a hard square, we are passed a full 128x128 grid
+# for a hard square, we are passed a 128x128 bit shadow
 # we pull data from the 32x32 data set in the tile table
 function hard_square($url, $shadow) {
 	$si = 0; # shadow index
@@ -98,7 +98,16 @@ function hard_square($url, $shadow) {
 	}
 }
 
+# fetch the parent 128x128 tile
+# FIXME get other ancestors
+function hard_shadow($url) {
+	$shadow = tile_get_128($url);
+
+	return $shadow;
+}
+
 # fetch the parent 128x128 tile and return the correct quadrant (no scaling)
+# FIXME get other ancestors
 function medium_shadow($url) {
 	$parent = tile_get_128(substr($url, 0, -1));
 	$shadow = '';
@@ -117,6 +126,7 @@ function medium_shadow($url) {
 }
 
 # fetch the parent 128x128 tile and return the correct 32x32 piece (no scaling)
+# FIXME get other ancestors
 function easy_shadow($url) {
 	$parent = tile_get_128(substr($url, 0, -1));
 	$shadow = '';
@@ -288,11 +298,44 @@ function easy_square($url, $shadow) {
 }
 
 
-function get_initial_toggle($square) {
-	$toggle = 0;
-	
-	# FIXME
+# find the initial "background color" for this square. that is:
+# start at zoom 0, and zoom in while the square to be rendered is still contained within a single pixel. Return the cumulative toggle of that pixel.
+# return 1 (toggled) or 0 (not toggled)
+function get_initial_toggle($url, $dots) {
+	$zooms = (strlen($url) * 3) - strlen($dots);
+	# after zooming 7 times, a single pixel from tile '' covers the whole picture.
+	if($zooms < 7) {
+		header("X-Initial-Toggle-Note: Only $zooms zooms.");
+		return 0;
+	}
+	$zooms -= 6;
 
+	$url_chars = 0;
+	$toggle = 0;
+	while($zooms > 6) { # 6 because the lower zooms come to a single pixel below plane 0 where we have no data
+		$zooms -= 3;
+
+		$t128 = tile_get_128(substr($url, 0, $url_chars));
+		# the next two bytes of the url tell us which pixel to take
+		$ch1 = strpos(URL_CHARS, substr($url, $url_chars, 1));
+		$ch2 = strpos(URL_CHARS, substr($url, $url_chars + 1, 1));
+		$ch3 = strpos(URL_CHARS, substr($url, $url_chars + 2, 1));
+
+		# there are 8x8 child tiles under this tile. Each sits under 16x16 pixels?
+		$x = ($ch1 % 8) * 16;
+		$x += ($ch2 % 8) * 2;
+		$x += floor(($ch3 % 8) / 4);
+
+		$y = floor($ch1 / 8) * 16;
+		$y += floor($ch2 / 8) * 2;
+		$y += floor(($ch3 / 8) / 4);
+
+		$toggle ^= (ord(substr($t128, ($y * T128_RB) + floor($x / 8), 1)) >> ($x % 8)) & 1;
+
+		$url_chars += 2;
+	}
+
+	header("X-Initial-Toggle-Note: initial toggle: $toggle.");
 	return $toggle;
 }
 
@@ -321,11 +364,13 @@ function binary_main() {
 	# $GLOBALS['pixels'] is an array of ints, because php won't let me use ^= on chars.
 	$GLOBALS['pixels'] = array_fill(0, 256 * 256 / 8, 255);
 
+	$initial_toggle = get_initial_toggle($url, $dots);
+
 	$shadow = str_repeat("\000", 128 * 128 / 8); #FIXME
 
 	switch($dots) {
 		case '':
-			$shadow = tile_get_128($url);
+			$shadow = hard_shadow($url);
 			hard_square($url, $shadow);
 		break;
 		case '..':

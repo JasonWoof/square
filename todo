@@ -1,6 +1,9 @@
-   CAN DO NOW
+    CAN DO NOW
 **	fix renderer so it checks ancesters
-done?	render new PNGs while it's zooming
+*		make a page to test get_initial_toggle()
+			if other than '' pass url for t128 tile to draw from on url
+			in php convert t128 tile to dots and periods in <pre>
+			in php call get_initial_toggle() for each pixel. output in slightly offset plane in color
 	make zoom out animation (careful about what shows through as it shrinks)
 	make it so you can edit!
 		learn how to get coords of mouse clicks (see my color picker)
