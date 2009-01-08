@@ -7,6 +7,16 @@ body {
 	font: 14px "Verdana", sans-serif;
 }
 
+a {
+	color: #555;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
 #panel {
 	position: absolute;
 	top: 3px;

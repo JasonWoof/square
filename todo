@@ -1,7 +1,20 @@
-	render new PNGs while it's zooming
-	make zoom out button
+   CAN DO NOW
+**	fix renderer so it checks ancesters
+done?	render new PNGs while it's zooming
+	make zoom out animation (careful about what shows through as it shrinks)
 	make it so you can edit!
 		learn how to get coords of mouse clicks (see my color picker)
+
+
+
+
+
+
+
+
+
+
+BELOW IS MOSTLY OLD CRAP
 
 	Figure out efficient way to store/retrieve pixels
 
