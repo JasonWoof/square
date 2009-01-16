@@ -98,6 +98,33 @@ function hard_square($url, $shadow) {
 	}
 }
 
+# pass a big tile, a tile 8x smaller, and the width in pixels of the small one (1,2,4,8 and 16 supported)
+#
+# tiles have one bit per pixel. 4x4 and 2x2 tiles are padded so each row starts on the next byte boundary.
+#
+# $big is changed, small is not (it's just passed by reference for speed)
+#
+# The result (overwriting $big) is the bitwise eXclusive OR of $big and (small zoomed 8x)
+function blit_xor_8x(&$big, &$small, $width) {
+	$big_cur = 0;
+	for($row = 0; $row < $width; ++$row, $big_cur += $width * 7) {
+		if($width == 16) {
+			$small_row = (ord($small[$row * 2]) << 8) | ord($small[($row * 2) + 1]);
+		} else {
+			$small_row = ord($small[$row]) << 8;
+		}
+		for($bit = 0; $bit < $width; ++$bit, ++$big_cur) {
+			$mask = $small_row & 0x8000; $small_row = $small_row << 1; # pop high bit
+			$mask |= ($mask >> 1) | ($mask >> 2) | ($mask >> 3);
+			$mask = ($mask >> 12) | ($mask >> 8);
+			for($sub_row = 0; $sub_row < $width; ++$sub_row) {
+				$big_i = $big_cur + ($sub_row * $width);
+				$big[$big_i] = chr(ord($big[$big_i]) ^ $mask);
+			}
+		}
+	}
+}
+
 # fetch the parent 128x128 tile
 # FIXME get other ancestors
 function hard_shadow($url) {
@@ -137,9 +164,6 @@ function medium_shadow($url) {
 	$parent = tile_get_128(substr($url, 0, -1));
 	$shadow = '';
 	$pos = strpos(URL_CHARS, substr($url, -1));
-	if($pos === false) {
-		die('invalid url');
-	}
 	$qx = floor(($pos % 8) / 4) * T64_RB;
 	$qy = floor($pos / 32) * T128_RB * 64;
 
@@ -175,9 +199,6 @@ function easy_shadow($url) {
 	$parent = tile_get_128(substr($url, 0, -1));
 	$shadow = '';
 	$pos = strpos(URL_CHARS, substr($url, -1));
-	if($pos === false) {
-		die('invalid url');
-	}
 	$qx = floor(($pos % 8) / 2) * T32_RB;
 	$qy = floor($pos / 16) * T128_RB * 32;
 
@@ -407,7 +428,12 @@ function binary_main() {
 		$pos = strpos($url, '.');
 		if($pos !== false) {
 			$dots = substr($url, $pos);
+			$dots = ereg_replace('[^.]', '', $dots);
 			$url = substr($url, 0, $pos);
+			if(strlen($dots) > 2 || ($url == '' && $dots != '')) {
+				print("Invalid URL");
+				return;
+			}
 		} else {
 			$dots = '';
 		}
@@ -442,8 +468,6 @@ function binary_main() {
 			$shadow = easy_shadow($url);
 			easy_square($url, $shadow);
 		break;
-		default:
-			die('invalid url');
 	}
 	
 
