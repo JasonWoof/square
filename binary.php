@@ -101,7 +101,31 @@ function hard_square($url, $shadow) {
 # fetch the parent 128x128 tile
 # FIXME get other ancestors
 function hard_shadow($url) {
+	$url_len = strlen($url);
 	$shadow = tile_get_128($url);
+
+	if($url_len == 0) {
+		return $shadow;
+	}
+
+	$shadow_16 = tile_get_128(substr($url, 0, -1));
+	# FIXME take the correct 16x16 chunk of this
+
+	if($url_len > 1) {
+		$shadow_2 = tile_get_128(substr($url, 0, -2));
+		# FIXME take the correct 2x2 chunk of this
+
+		if($url_len > 2) {
+			$initial_toggle = get_initial_toggle($url, 0);
+			if($initial_toggle) {
+				# FIXME color $shadow_2
+			}
+		}
+
+		# FIXME color $shadow_16 from $shadow_2
+	}
+
+	# FIXME color $shadow from $shadow_16
 
 	return $shadow;
 }
@@ -109,6 +133,7 @@ function hard_shadow($url) {
 # fetch the parent 128x128 tile and return the correct quadrant (no scaling)
 # FIXME get other ancestors
 function medium_shadow($url) {
+	$url_len = strlen($url);
 	$parent = tile_get_128(substr($url, 0, -1));
 	$shadow = '';
 	$pos = strpos(URL_CHARS, substr($url, -1));
@@ -122,12 +147,31 @@ function medium_shadow($url) {
 		$shadow .= substr($parent, $qx + $qy + ($y * T128_RB), T64_RB);
 	}
 
+	if($url_len == 1) {
+		return $shadow;
+	}
+
+	if($url_len > 1) {
+		$shadow_8 = tile_get_128(substr($url, 0, -2));
+		# FIXME get the right 8x8 sub-section
+
+		if($url_len > 2) {
+			$initial_toggle = get_initial_toggle($url, 2);
+			if($initial_toggle) {
+				# FIXME color $shadow_8
+			}
+		}
+	}
+
+	# FIXME color $shadow with $shadow_8
+
 	return $shadow;
 }
 
 # fetch the parent 128x128 tile and return the correct 32x32 piece (no scaling)
 # FIXME get other ancestors
 function easy_shadow($url) {
+	$url_len = strlen($url);
 	$parent = tile_get_128(substr($url, 0, -1));
 	$shadow = '';
 	$pos = strpos(URL_CHARS, substr($url, -1));
@@ -140,6 +184,24 @@ function easy_shadow($url) {
 	for($y = 0; $y < 32; ++$y) {
 		$shadow .= substr($parent, $qx + $qy + ($y * T128_RB), T32_RB);
 	}
+
+	if($url_len == 1) {
+		return $shadow;
+	}
+
+	if($url_len > 1) {
+		$shadow_4 = tile_get_128(substr($url, 0, -2));
+		# FIXME get the right 4x4 sub-section
+
+		if($url_len > 2) {
+			$initial_toggle = get_initial_toggle($url, 2);
+			if($initial_toggle) {
+				# FIXME color $shadow_4
+			}
+		}
+	}
+
+	# FIXME color $shadow with $shadow_4
 
 	return $shadow;
 }
