@@ -117,7 +117,7 @@ function blit_xor_8x(&$big, &$small, $width) {
 			$mask = $small_row & 0x8000; $small_row = $small_row << 1; # pop high bit
 			$mask |= ($mask >> 1) | ($mask >> 2) | ($mask >> 3);
 			$mask = ($mask >> 12) | ($mask >> 8);
-			for($sub_row = 0; $sub_row < $width; ++$sub_row) {
+			for($sub_row = 0; $sub_row < 8; ++$sub_row) {
 				$big_i = $big_cur + ($sub_row * $width);
 				$big[$big_i] = chr(ord($big[$big_i]) ^ $mask);
 			}
@@ -135,8 +135,9 @@ function hard_shadow($url) {
 		return $shadow;
 	}
 
-	$shadow_16 = tile_get_128(substr($url, 0, -1));
-	# FIXME take the correct 16x16 chunk of this
+	$shadow_16_tile = tile_get_128(substr($url, 0, -1));
+	list($x, $y) = url_char_to_xy(substr($url, -1), 128);
+	$shadow_16 = t128_subsection($shadow_16_tile, $x, $y, 16);
 
 	if($url_len > 1) {
 		$shadow_2 = tile_get_128(substr($url, 0, -2));
@@ -152,7 +153,7 @@ function hard_shadow($url) {
 		# FIXME color $shadow_16 from $shadow_2
 	}
 
-	# FIXME color $shadow from $shadow_16
+	blit_xor_8x($shadow, $shadow_16, 16);
 
 	return $shadow;
 }

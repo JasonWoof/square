@@ -31,6 +31,45 @@ define('PIXELS_RB2', 64);
 define('PIXELS_RB3', 96); 
 define('PIXELS_RB7', 224); 
 
+
+# return the row and column of $c in URL_CHARS.
+#
+# if you pass $width then the result will be scaled down both results will always be smaller than $width
+#
+# examples:
+#    1) find out what quadrant "c" is in:
+#          list($x, $y) = url_char_to_xy('c', 2);
+#    1) find out what quadrant $url_char is (x and y are 0..7 inclusive):
+#          list($x, $y) = url_char_to_xy($url_char);
+function url_char_to_xy($c, $width = 8) {
+	$pos = strpos(URL_CHARS, $c);
+	$x = ($pos % 8);
+	$y = floor($pos / 8 + .000001);
+
+	$x = floor(($x / 8) * $width + .000001);
+	$y = floor(($y / 8) * $width + .000001);
+
+	return array($x, $y);
+}
+
+# args are expected to be fully alligned
+function t128_subsection(&$t128, $x, $y, $size) {
+	if(($size < 8) != 0) { # FIXME
+		print("t128_subsection() doesn't support size < 8 yet");
+		exit(1);
+	}
+	$x /= 8; # convert bits to bytes
+	$size_bytes = $size / 8;
+
+	$ret = '';
+	for($i = 0; $i < $size; ++$i) {
+		$ret .= substr($t128, ($y * T128_RB) + $x, $size_bytes);
+		$y += 1;
+	}
+
+	return $ret;
+}
+
 function get_hard_tiles($url) {
 	$query = '';
 	foreach($GLOBALS['url_chars_a'] as $c) {
