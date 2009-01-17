@@ -140,8 +140,10 @@ function hard_shadow($url) {
 	$shadow_16 = t128_subsection($shadow_16_tile, $x, $y, 16);
 
 	if($url_len > 1) {
-		$shadow_2 = tile_get_128(substr($url, 0, -2));
-		# FIXME take the correct 2x2 chunk of this
+		$shadow_2_tile = tile_get_128(substr($url, 0, -2));
+		list($x, $y) = url_char_to_xy(substr($url, -2, 1), 8, 128);
+		list($xq, $yq) = url_char_to_xy(substr($url, -1, 1), 8, 16);
+		$shadow_2 = t128_subsection($shadow_2_tile, $x + $xq, $y + $yq, 2);
 
 		if($url_len > 2) {
 			$initial_toggle = get_initial_toggle($url, 0);
@@ -150,7 +152,7 @@ function hard_shadow($url) {
 			}
 		}
 
-		# FIXME color $shadow_16 from $shadow_2
+		blit_xor_8x($shadow_16, $shadow_2, 2);
 	}
 
 	blit_xor_8x($shadow, $shadow_16, 16);
