@@ -71,17 +71,21 @@ function url_char_to_xy($c, $quantize = 8, $scale = 0) {
 
 # args are expected to be fully alligned
 function t128_subsection(&$t128, $x, $y, $size) {
-	if(($size < 8) != 0) { # FIXME
-		print("t128_subsection() doesn't support size < 8 yet");
-		exit(1);
-	}
-	$x /= 8; # convert bits to bytes
-	$size_bytes = $size / 8;
+	$x_bytes = floor($x / 8); # convert bits to bytes
+	$size_bytes = ceil($size / 8);
 
 	$ret = '';
 	for($i = 0; $i < $size; ++$i) {
-		$ret .= substr($t128, ($y * T128_RB) + $x, $size_bytes);
+		$ret .= substr($t128, ($y * T128_RB) + $x_bytes, $size_bytes);
 		$y += 1;
+	}
+
+	# if size < 8 AND we're not aligned to a byte boundary then shift everything
+	$shift = $x % 8;
+	if($shift) {
+		for($i = 0; $i < $size; ++$i) {
+			$ret[$i] = chr((ord($ret[$i]) << $shift) & 0xff);
+		}
 	}
 
 	return $ret;

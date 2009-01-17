@@ -189,6 +189,7 @@ function medium_shadow($url) {
 				$shadow_8[7] = chr(ord($shadow_8[7]) ^ 0xff);
 			}
 		}
+
 		blit_xor_8x($shadow, $shadow_8, 8);
 	}
 
@@ -214,8 +215,10 @@ function easy_shadow($url) {
 	}
 
 	if($url_len > 1) {
-		$shadow_4 = tile_get_128(substr($url, 0, -2));
-		# FIXME get the right 4x4 sub-section
+		$shadow_4_tile = tile_get_128(substr($url, 0, -2));
+		list($x, $y) = url_char_to_xy(substr($url, -2, 1), 8, 128);
+		list($xq, $yq) = url_char_to_xy(substr($url, -1, 1), 4, 16);
+		$shadow_4 = t128_subsection($shadow_4_tile, $x + $xq, $y + $yq, 4);
 
 		if($url_len > 2) {
 			$initial_toggle = get_initial_toggle($url, 2);
@@ -223,9 +226,9 @@ function easy_shadow($url) {
 				# FIXME color $shadow_4
 			}
 		}
-	}
 
-	# FIXME color $shadow with $shadow_4
+		blit_xor_8x($shadow, $shadow_4, 4);
+	}
 
 	return $shadow;
 }
