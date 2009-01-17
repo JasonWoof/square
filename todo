@@ -1,8 +1,5 @@
     CAN DO NOW
-**	fix renderer so it checks ancesters
-*		write blit_16x_xor(&$target, &$small, width);
-DONE		make a page to test get_initial_toggle()
-		run tests with URLs with dots (passed all tests without dots)
+DONE	fix renderer so it checks ancesters
 	make zoom-out animation (careful about what shows through as it shrinks)
 	make it so you can edit!
 		learn how to get coords of mouse clicks (see my color picker)

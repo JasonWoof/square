@@ -148,7 +148,8 @@ function hard_shadow($url) {
 		if($url_len > 2) {
 			$initial_toggle = get_initial_toggle($url, 0);
 			if($initial_toggle) {
-				# FIXME color $shadow_2
+				$shadow_2[0] = chr(ord($shadow_2[0]) ^ 0xff);
+				$shadow_2[1] = chr(ord($shadow_2[1]) ^ 0xff);
 			}
 		}
 
@@ -225,7 +226,10 @@ function easy_shadow($url) {
 		if($url_len > 2) {
 			$initial_toggle = get_initial_toggle($url, 2);
 			if($initial_toggle) {
-				# FIXME color $shadow_4
+				$shadow_4[0] = chr(ord($shadow_4[0]) ^ 0xff);
+				$shadow_4[1] = chr(ord($shadow_4[1]) ^ 0xff);
+				$shadow_4[2] = chr(ord($shadow_4[2]) ^ 0xff);
+				$shadow_4[3] = chr(ord($shadow_4[3]) ^ 0xff);
 			}
 		}
 
