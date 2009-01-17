@@ -32,22 +32,39 @@ define('PIXELS_RB3', 96);
 define('PIXELS_RB7', 224); 
 
 
-# return the row and column of $c in URL_CHARS.
+# Return the row and column of $c in URL_CHARS, adjusted as follows:
 #
-# if you pass $width then the result will be scaled down both results will always be smaller than $width
+# First they are scaled down and floored so they are integers less than $quantize
+#
+# Then they are scaled up so they are range from 0 to $scale-1
 #
 # examples:
-#    1) find out what quadrant "c" is in:
-#          list($x, $y) = url_char_to_xy('c', 2);
-#    1) find out what quadrant $url_char is (x and y are 0..7 inclusive):
-#          list($x, $y) = url_char_to_xy($url_char);
-function url_char_to_xy($c, $width = 8) {
+#    1) find out what quadrant "c" is in: (output range 0..1 inclusive)
+#          list($x, $y) = url_char_to_xy('c', 2, 2);
+#    2) get coordinates of quadrant containing "f" in the scale of a 128x128 grid
+#          list($x, $y) = url_char_to_xy('f', 2, 128);
+#    3) find out which 16x16 patch of a 128x128 block is addressed as "R"
+#          list($x, $y) = url_char_to_xy('R', 8, 16);
+function url_char_to_xy($c, $quantize = 8, $scale = 0) {
+	if(!$scale) {
+		$scale = $quantize;
+	}
+
+	if($quantize > $scale) {
+		$quantize = $scale;
+	}
+
 	$pos = strpos(URL_CHARS, $c);
 	$x = ($pos % 8);
 	$y = floor($pos / 8 + .000001);
 
-	$x = floor(($x / 8) * $width + .000001);
-	$y = floor(($y / 8) * $width + .000001);
+	$quantize = 8 / $quantize;
+
+	$x = floor(($x / $quantize) + .000001);
+	$y = floor(($y / $quantize) + .000001);
+
+	$x = round($x * ($scale / 8) * $quantize);
+	$y = round($y * ($scale / 8) * $quantize);
 
 	return array($x, $y);
 }
