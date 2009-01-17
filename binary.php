@@ -179,7 +179,14 @@ function medium_shadow($url) {
 		if($url_len > 2) {
 			$initial_toggle = get_initial_toggle($url, 2);
 			if($initial_toggle) {
-				# FIXME color $shadow_8
+				$shadow_8[0] = chr(ord($shadow_8[0]) ^ 0xff);
+				$shadow_8[1] = chr(ord($shadow_8[1]) ^ 0xff);
+				$shadow_8[2] = chr(ord($shadow_8[2]) ^ 0xff);
+				$shadow_8[3] = chr(ord($shadow_8[3]) ^ 0xff);
+				$shadow_8[4] = chr(ord($shadow_8[4]) ^ 0xff);
+				$shadow_8[5] = chr(ord($shadow_8[5]) ^ 0xff);
+				$shadow_8[6] = chr(ord($shadow_8[6]) ^ 0xff);
+				$shadow_8[7] = chr(ord($shadow_8[7]) ^ 0xff);
 			}
 		}
 		blit_xor_8x($shadow, $shadow_8, 8);
