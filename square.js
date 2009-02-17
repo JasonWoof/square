@@ -219,6 +219,25 @@ function quantize_url_char(c, pow) {
 	return g_charset.charAt((y * 8) + x);
 }
 
+// pass:
+//       c: url char
+//       size: size of parent square (2, 4 or 8) relative to which you want the quadrant
+function quadrant_at_scale(c, size) {
+	c = g_charset.indexOf(c);
+	var x = c % 8;
+	var y = Math.floor(c / 8);
+	var oldx = x;
+	var oldy = y;
+
+	x %= size;
+	y %= size;
+
+	x = Math.floor(x / (size / 2));
+	y = Math.floor(y / (size / 2));
+
+	return x + (y * 2);
+}
+
 function zoom_tl() { click(0); }
 function zoom_tr() { click(1); }
 function zoom_bl() { click(2); }
@@ -253,19 +272,25 @@ function click(quadrant) {
 
 	if(quadrant == 'out') {
 		if(g_url == '') {
-			// get_and_render(g_url);
-		} else if(dots == '..') {
+			return; // we're already zoomed all the way out
+		}
+		if(dots == '..') {
 			get_and_render(letters.substr(0, letters.length - 1));
+			quadrant = quadrant_at_scale(letters.substr(letters.length - 1), 8);
 		} else {
 			var base = letters.substr(0, letters.length - 1);
 			var last = letters.substr(letters.length - 1);
 			if(dots == '') {
+				quadrant = quadrant_at_scale(last, 2);
 				last = quantize_url_char(last, 2);
 			} else { // dots == '.'
+				quadrant = quadrant_at_scale(last, 4);
 				last = quantize_url_char(last, 4);
 			}
-			get_and_render(base + last + dots + '.');
 		}
+		get_and_render(base + last + dots + '.');
+		animate_zoom_out(quadrant);
+		return;
 	} else {
 		if(dots == '') {
 			get_and_render(letters + g_charset.charAt(quadrant_to_offset(quadrant, 4))  + '..');
@@ -326,6 +351,10 @@ var animation_frame_delay = 100;
 
 var animation_target_size;
 var animation_steps_left;
+
+function animate_zoom_out(quadrant) {
+	animate_zoom_to(quadrant, 64);
+}
 
 function animate_zoom_in(which) {
 	animate_zoom_to(which, 256);
