@@ -1,8 +1,13 @@
 INSTALL
 
-cd code
-git clone git@github.com:JasonWoof/wfpl.git
-cd ..
-ln -s code/wfpl/run.php
+1) Download and setup wfpl:
+	cd code
+	git clone git@github.com:JasonWoof/wfpl.git
+	cd ..
+	ln -s code/wfpl/run.php
 
-also you'll need to download jquery
+2) Download jquery (this package has been tested with jquery-1.2.6-min)
+
+4) Create a mysql database, and edit code/db_connect.php to set the correct host, username and password
+
+3) Go to http://your_domain_here/path-to-square/init to populate the database with some random data
