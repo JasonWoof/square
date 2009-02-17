@@ -13,6 +13,7 @@ var front_squares_tb, front_squares_bt, front_squares_lr, front_squares_rl;
 var g_editor_toggle = false;
 var back_squares_tb, back_squares_bt, back_squares_lr, back_squares_rl;
 var g_blank = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABAQMAAAAl21bKAAAAA1BMVEX///+nxBvIAAAACklEQVQIHWNgAAAAAgABz8g15QAAAABJRU5ErkJggg==';
+var g_background_image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAAxJREFUCNdj6OjoAAADNAGZEI/f7gAAAABJRU5ErkJggg==';
 
 var g_url; // id number of current square
 var g_charset = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz'; // id number of current square
@@ -43,13 +44,31 @@ var g_z = 0;
 // change which set of images are displayed
 function toggle_display() {
 	++g_z;
+	setTimeout(_toggle_display, 10);
+}
+
+function _toggle_display() {
 	if(g_editor_toggle) {
-		setTimeout("$('.back_square').css('z-index', g_z)", 10);
+		$('.back_square').css('z-index', g_z);
 		// $('.front_square').css('top', '-500px');
 		// $('.front_square').hide();
 	} else {
-		setTimeout("$('.front_square').css('z-index', g_z)", 10);
+		$('.front_square').css('z-index', g_z);
 		// $('.front_square').show();
+	}
+
+	setTimeout(__toggle_display, 10);
+}
+
+function __toggle_display() {
+	if(g_editor_toggle) {
+		$('.front_square').each(function(i, dom) {
+			dom.src = g_background_image;
+		});
+	} else {
+		$('.back_square').each(function(i, dom) {
+			dom.src = g_background_image;
+		});
 	}
 }
 
