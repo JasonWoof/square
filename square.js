@@ -287,8 +287,8 @@ function click(quadrant) {
 				quadrant = quadrant_at_scale(last, 4);
 				last = quantize_url_char(last, 4);
 			}
+			get_and_render(base + last + dots + '.');
 		}
-		get_and_render(base + last + dots + '.');
 		animate_zoom_out(quadrant);
 		return;
 	} else {
