@@ -253,7 +253,7 @@ function click(quadrant) {
 
 	if(quadrant == 'out') {
 		if(g_url == '') {
-			get_and_render(g_url);
+			// get_and_render(g_url);
 		} else if(dots == '..') {
 			get_and_render(letters.substr(0, letters.length - 1));
 		} else {
@@ -280,7 +280,7 @@ function click(quadrant) {
 				get_and_render(letters.substr(0, letters.length - 1) + g_charset.charAt(offset));
 			}
 		}
-		animate_zoom(quadrant);
+		animate_zoom_in(quadrant);
 	}
 }
 
@@ -315,14 +315,23 @@ var EXPAND = ANIM_VG | ANIM_HG;
 
 var animating = false;
 var animator_id;
-var pixels_to_animate;
 var animate_dx;
 var animate_dy;
 var data_ready;
 var data_that_is_ready;
-var animate_speed = 16;
 
-function animate_zoom(which) {
+// these two will be constants unless/until we can detect how fast the client is:
+var animation_steps = 8;
+var animation_frame_delay = 100;
+
+var animation_target_size;
+var animation_steps_left;
+
+function animate_zoom_in(which) {
+	animate_zoom_to(which, 256);
+}
+
+function animate_zoom_to(which, target_size) {
 	if(which < 2) {
 		animate_dy = 1;
 	} else {
@@ -335,22 +344,24 @@ function animate_zoom(which) {
 		animate_dx = 1;
 	}
 
+	animation_target_size = target_size;
+	start_animation_ticker();
+}
+
+function start_animation_ticker() {
 	animating = true;
-	pixels_to_animate = 128;
-	animator_id = setInterval('animate_frame()', 100);
+	animation_steps_left = animation_steps;
+	animator_id = setInterval('animate_frame()', animation_frame_delay);
 }
 
 function animate_frame() {
 	var i, j, xcur, ycur;
 	var xsquares, yquares;
 	var size;
-	if(pixels_to_animate && pixels_to_animate < animate_speed) {
-		pixels_to_animate = animate_speed;
-	}
 
-	pixels_to_animate -= animate_speed;
+	animation_steps_left -= 1;
 
-	size = 256 - pixels_to_animate; // new size
+	size = animation_target_size - Math.round((animation_target_size - 128) * animation_steps_left / animation_steps);
 
 	// rows/columns move move by animate-speed + tile-size
 	if(animate_dx < 0) {
@@ -379,7 +390,7 @@ function animate_frame() {
 		}
 	}
 
-	if(pixels_to_animate == 0) {
+	if(animation_steps_left == 0) {
 		animating = false;
 		clearInterval(animator_id);
 		if(data_ready) {
