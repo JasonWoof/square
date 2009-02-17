@@ -1,0 +1,8 @@
+INSTALL
+
+cd code
+git clone git@github.com:JasonWoof/wfpl.git
+cd ..
+ln -s code/wfpl/run.php
+
+also you'll need to download jquery
