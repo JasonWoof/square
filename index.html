@@ -18,11 +18,21 @@
 <div id="panel"><div id="panel_inner">
   <h3 class="first">Click anywhere in the box to the left to zoom in.</h3>
 
-  <div id="zoom_out" onclick="zoom_to('out')">Zoom Out</div>
+  <div id="buttons">
+    <div class="button" id="zoom_out" onclick="zoom_to('out')">Zoom Out</div>
+    <div class="button" onclick="start_editing(2)">Edit 2</div>
+    <div class="button" onclick="start_editing(4)">Edit 4</div>
+    <div class="button" onclick="start_editing(8)">Edit 8</div>
+    <div class="button" onclick="start_editing(16)">Edit 16</div>
+    <div class="button" onclick="start_editing(32)">Edit 32</div>
+    <div class="button" onclick="start_editing(64)">Edit 64</div>
+    <div class="button" onclick="stop_editing()">Stop Editing</div>
+  </div>
 
-  <h3>Explanation:</h3>
 
-  <p>This is far from finished. Soon (I hope) you'll be able to edit the picture to the left at any zoom level. Currently it is just randomly generated.</p>
+  <h3>Warning:</h3>
+
+  <p>This site is under construction. <span style="color: red">You cannot save yet.</span>
 
   <div id="copyright"><a href="http://github.com/JasonWoof/square/tree/master">The code</a> that runs this website is licensed under the <a href="http://www.gnu.org/licenses/agpl.html">GNU AGPL</a>.</div>
 </div></div>
@@ -43,7 +53,7 @@
     </object>
   </div>
 
-  <div id="brush_layer" style="z-index: 100000"></div>
+  <div id="brush_layer" style="z-index: 100000; cursor: none"></div>
 
 </body>
 </html>

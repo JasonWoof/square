@@ -521,19 +521,30 @@ function brush_mouse_moved(e) {
 }
 
 // coords pased in square pixels (not screen sized)
+// size must be: 1, 2, 4, 8, 16, 32 or 64
 function xor_square(x, y, size) {
 	var in_index;
+	var tmp_index;
 	var square_num;
-	// FIXME deal with brush sizes other than 8
-	in_index = (x / 8) + (y * in_row_bytes);
-	in_pixels[in_index] ^= 0xff;
-	in_pixels[in_index + 1 * in_row_bytes] ^= 0xff;
-	in_pixels[in_index + 2 * in_row_bytes] ^= 0xff;
-	in_pixels[in_index + 3 * in_row_bytes] ^= 0xff;
-	in_pixels[in_index + 4 * in_row_bytes] ^= 0xff;
-	in_pixels[in_index + 5 * in_row_bytes] ^= 0xff;
-	in_pixels[in_index + 6 * in_row_bytes] ^= 0xff;
-	in_pixels[in_index + 7 * in_row_bytes] ^= 0xff;
+	var bytesize = Math.ceil(size / 8);
+	var mask;
+	var xx;
+	var yy;
+
+	if(size >= 8) {
+		mask = 0xff;
+	} else {
+		mask = (1 << size) - 1;
+		mask <<= (8 - size) - (x % 8);
+	}
+
+	in_index = Math.floor(x / 8) + (y * in_row_bytes);
+	for(yy = 0; yy < size; ++yy) {
+		tmp_index = in_index + yy * in_row_bytes;
+		for(xx = 0; xx < bytesize; ++xx) {
+			in_pixels[tmp_index + xx] ^= mask;
+		}
+	}
 
 	square_num = Math.floor(x / 64);
 	square_num += Math.floor(y / 64) * 4;
@@ -544,6 +555,7 @@ function xor_square(x, y, size) {
 function brush_clicked(e) {
 	var x = e.pageX - DISPLAY_ORIGIN_X;
 	var y = e.pageY - DISPLAY_ORIGIN_Y;
+
 	e.preventDefault();
 	e.stopPropagation();
 	move_brush_to(x, y); // make sure we've got the brush in the right place
@@ -553,4 +565,8 @@ function brush_clicked(e) {
 function start_editing(brush_size) {
 	select_brush(brush_size);
 	show_brush_layer();
+}
+
+function stop_editing() {
+	hide_brush_layer();
 }

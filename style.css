@@ -66,17 +66,21 @@ a:hover {
 	z-index: 0
 }
 
-#zoom_out {
-	margin: 30px auto 30px 0px;
+#buttons {
+	margin: 30px 0;
+}
+
+.button {
+	margin: 10px auto 10px 0px;
 	border: 2px solid #333;
-	width: 100px;
+	width: 130px;
 	text-align: center;
 	background: #ddd;
 	color: black;
 	padding: 3px;
 	cursor: pointer;
 }
-#zoom_out:hover {
+.button:hover {
 	border: 2px solid #ccc;
 	color: #fff;
 	background: #333;
