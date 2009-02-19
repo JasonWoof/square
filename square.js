@@ -470,6 +470,7 @@ function init_brush_layer() {
 	brush_layer.css('left',     '-700px');
 	brush_layer.css('background-repeat',     'no-repeat');
 	brush_layer.bind('mousemove', brush_mouse_moved);
+	brush_layer.bind('click', brush_clicked);
 }
 
 function show_brush_layer() {
@@ -502,6 +503,9 @@ function move_brush_to(x, y) {
 		return;
 	}
 
+	g_brush_x = x;
+	g_brush_y = y;
+
 	// adjust for borders:
 	//   brush layer is 2px left of square
 	//   brush image starts 1px left of target
@@ -514,6 +518,36 @@ function move_brush_to(x, y) {
 // event callback for mousemove on brush layer
 function brush_mouse_moved(e) {
 	move_brush_to(e.pageX - DISPLAY_ORIGIN_X, e.pageY - DISPLAY_ORIGIN_Y);
+}
+
+// coords pased in square pixels (not screen sized)
+function xor_square(x, y, size) {
+	var in_index;
+	var square_num;
+	// FIXME deal with brush sizes other than 8
+	in_index = (x / 8) + (y * in_row_bytes);
+	in_pixels[in_index] ^= 0xff;
+	in_pixels[in_index + 1 * in_row_bytes] ^= 0xff;
+	in_pixels[in_index + 2 * in_row_bytes] ^= 0xff;
+	in_pixels[in_index + 3 * in_row_bytes] ^= 0xff;
+	in_pixels[in_index + 4 * in_row_bytes] ^= 0xff;
+	in_pixels[in_index + 5 * in_row_bytes] ^= 0xff;
+	in_pixels[in_index + 6 * in_row_bytes] ^= 0xff;
+	in_pixels[in_index + 7 * in_row_bytes] ^= 0xff;
+
+	square_num = Math.floor(x / 64);
+	square_num += Math.floor(y / 64) * 4;
+	render_square(square_num);
+}
+
+// event callback for mouse click on brush layer
+function brush_clicked(e) {
+	var x = e.pageX - DISPLAY_ORIGIN_X;
+	var y = e.pageY - DISPLAY_ORIGIN_Y;
+	e.preventDefault();
+	e.stopPropagation();
+	move_brush_to(x, y); // make sure we've got the brush in the right place
+	xor_square(g_brush_x / 2, g_brush_y / 2, g_brush_size / 2); // "/ 2" because everything is in screen coordinates
 }
 
 function start_editing(brush_size) {
