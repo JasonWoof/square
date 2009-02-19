@@ -19,9 +19,9 @@ var g_url; // id number of current square
 var g_charset = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz'; // id number of current square
 
 // this is called (exclusively) by the html page's body onload
-function load(square) {
+function load(url) {
 	squares_init()
-	get_and_render(square);
+	get_and_render(url);
 }
 
 function get_and_render(url) {
@@ -35,7 +35,7 @@ function call_me(rec) {
 		data_ready = true;
 		data_that_is_ready = rec.responseText;
 	} else {
-		squares(rec.responseText);
+		replace_with_bitmap(rec.responseText);
 	}
 }
 
@@ -89,7 +89,8 @@ function toggle_editor() {
 	}
 }
 
-function make_square(square_num) {
+// copy one square worth of in_pixels into png encoder memory
+function square_to_png_buf(square_num) {
 	var index;
 	var i;
 	var b;
@@ -178,10 +179,11 @@ function squares_init() {
 	});
 }
 
+// update display from in_pixels buffer
 function render_square(square_num) {
 	var png;
 
-	make_square(square_num);
+	square_to_png_buf(square_num);
 	png = make_png();
 	squares_tb[square_num].src = 'data:image/png;base64,' + png;
 }
@@ -198,7 +200,8 @@ function unzoom_squares() {
 }
 
 
-function squares(data) {
+// render 256x256 bitmap (passed as string)
+function replace_with_bitmap(data) {
 	var square_num;
 	var i;
 
@@ -257,12 +260,13 @@ function quadrant_at_scale(c, size) {
 	return x + (y * 2);
 }
 
-function zoom_tl() { click(0); }
-function zoom_tr() { click(1); }
-function zoom_bl() { click(2); }
-function zoom_br() { click(3); }
+function zoom_tl() { zoom_to(0); }
+function zoom_tr() { zoom_to(1); }
+function zoom_bl() { zoom_to(2); }
+function zoom_br() { zoom_to(3); }
 
-function click(quadrant) {
+// pass 1, 2, 3, 4 or "out"
+function zoom_to(quadrant) {
 	var letters;
 	var dots;
 
@@ -443,7 +447,7 @@ function animate_frame() {
 		clearInterval(animator_id);
 		if(data_ready) {
 			data_ready = false;
-			setTimeout('squares(data_that_is_ready)', 10);
+			setTimeout('replace_with_bitmap(data_that_is_ready)', 10);
 		}
 		return;
 	}
