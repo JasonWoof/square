@@ -1,3 +1,5 @@
+var DISPLAY_ORIGIN_X = 7; // how many pixels from the left of the page the square displayed
+var DISPLAY_ORIGIN_Y = 7; // how many pixels from the top of the page the square displayed
 var IN_WIDTH = 256;
 var IN_HEIGHT = IN_WIDTH
 var OUT_BOX_HEIGHT = 64;
@@ -8,6 +10,10 @@ var in_row_bytes = IN_WIDTH / 8;
 var in_box_bytes = in_row_bytes / 4;
 var in_box_vert = in_row_bytes * OUT_BOX_HEIGHT;
 var in_pixels;
+var brush_layer;
+var g_brush_size;
+var g_brush_x;
+var g_brush_y;
 var squares_tb, squares_bt, squares_lr, squares_rl;
 var front_squares_tb, front_squares_bt, front_squares_lr, front_squares_rl;
 var g_editor_toggle = false;
@@ -115,6 +121,8 @@ function square_to_png_buf(square_num) {
 
 
 function squares_init() {
+	brush_layer = $('#brush_layer');
+	init_brush_layer();
 	in_pixels = new Array(IN_WIDTH * IN_WIDTH / 8);
 	png_init(width, height);
 	var frame = $('#square_frame');
@@ -451,4 +459,64 @@ function animate_frame() {
 		}
 		return;
 	}
+}
+
+
+function init_brush_layer() {
+	brush_layer.css('position', 'absolute');
+	brush_layer.css('height',   '516px');
+	brush_layer.css('width',    '516px');
+	brush_layer.css('top',      '5px');
+	brush_layer.css('left',     '-700px');
+	brush_layer.css('background-repeat',     'no-repeat');
+	brush_layer.bind('mousemove', brush_mouse_moved);
+}
+
+function show_brush_layer() {
+	brush_layer.css('left',     '5px');
+}
+
+function hide_brush_layer() {
+	brush_layer.css('left',     '-700px');
+	hide_brush();
+}
+
+function hide_brush() {
+	brush_layer.css('background-position',     '-500px -500px');
+	g_brush_x = -500;
+	g_brush_y = -500;
+}
+
+function select_brush(brush_size) {
+	g_brush_size = brush_size;
+	brush_layer.css('background-image', 'url(images/' + brush_size + '_opaque.png)');
+}
+
+// pass (x, y) of mouse cursor relative to square
+function move_brush_to(x, y) {
+	// move to the top/left corner of the brush-sized square we're in
+	x -= x % g_brush_size;
+	y -= y % g_brush_size;
+
+	if(x == g_brush_x && y == g_brush_y) {
+		return;
+	}
+
+	// adjust for borders:
+	//   brush layer is 2px left of square
+	//   brush image starts 1px left of target
+	x += 1;
+	y += 1;
+
+	brush_layer.css('background-position', x + 'px ' + y + 'px');
+}
+
+// event callback for mousemove on brush layer
+function brush_mouse_moved(e) {
+	move_brush_to(e.pageX - DISPLAY_ORIGIN_X, e.pageY - DISPLAY_ORIGIN_Y);
+}
+
+function start_editing(brush_size) {
+	select_brush(brush_size);
+	show_brush_layer();
 }
