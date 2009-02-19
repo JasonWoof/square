@@ -470,6 +470,7 @@ function init_brush_layer() {
 	brush_layer.css('left',     '-700px');
 	brush_layer.css('background-repeat',     'no-repeat');
 	brush_layer.bind('mousemove', brush_mouse_moved);
+	brush_layer.bind('mouseout', hide_brush);
 	brush_layer.bind('click', brush_clicked);
 }
 
@@ -493,11 +494,16 @@ function select_brush(brush_size) {
 	brush_layer.css('background-image', 'url(images/' + brush_size + '_opaque.png)');
 }
 
-// pass (x, y) of mouse cursor relative to square
+// pass (x, y) of mouse cursor (screen pixels) relative to square
 function move_brush_to(x, y) {
 	// move to the top/left corner of the brush-sized square we're in
 	x -= x % g_brush_size;
 	y -= y % g_brush_size;
+
+	if(x < 0 || y < 0 || x >= 512 || y >= 512) {
+		hide_brush();
+		return;
+	}
 
 	if(x == g_brush_x && y == g_brush_y) {
 		return;
@@ -559,6 +565,10 @@ function brush_clicked(e) {
 	e.preventDefault();
 	e.stopPropagation();
 	move_brush_to(x, y); // make sure we've got the brush in the right place
+	if(g_brush_x < 0) {
+		// brush is hidden when not in a valid location by moving it to -300px
+		return;
+	}
 	xor_square(g_brush_x / 2, g_brush_y / 2, g_brush_size / 2); // "/ 2" because everything is in screen coordinates
 }
 
