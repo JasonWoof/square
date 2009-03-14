@@ -1,6 +1,6 @@
 var DISPLAY_ORIGIN_X = 7; // how many pixels from the left of the page the square displayed
 var DISPLAY_ORIGIN_Y = 7; // how many pixels from the top of the page the square displayed
-var IN_WIDTH = 256;
+var IN_WIDTH = 256; // size in pixels of the bitmap the server sends us
 var IN_HEIGHT = IN_WIDTH
 var OUT_BOX_HEIGHT = 64;
 var OUT_BOX_WIDTH = OUT_BOX_HEIGHT
@@ -237,6 +237,10 @@ function quadrant_to_offset(quadrant, zoom) {
 	return (y * 8 * zoom) + (x * zoom);
 }
 
+function url_char_to_xy(c) {
+	c = g_charset.indexOf(c);
+	return [c % 8, Math.floor(c / 8)];
+}
 
 // rount c down, so it's in the top left of the POWxPOW tile it's in
 function quantize_url_char(c, pow) {
@@ -494,6 +498,113 @@ function select_brush(brush_size) {
 	brush_layer.css('background-image', 'url(images/' + brush_size + '_opaque.png)');
 }
 
+// return what power of 2 x is
+// eg solve this for pow: 2^pow = x
+function power_of_2(x) {
+	return Math.round(Math.log(x) / Math.log(2));
+}
+
+// pass a url
+// returns an array of:
+//    1) the letters from the url
+//    2) the dots from the url
+function split_url(url) {
+	if(url.substr(url.length - 2) == '..') {
+		return [url.substr(0, url.length - 2), '..'];
+	} else if(url.substr(url.length - 1) == '.') {
+		return [url.substr(0, url.length - 1), '.'];
+	} else {
+		return [url, ''];
+	}
+}
+
+// return quotient and remainder of x/y
+function div_mod(x, y) {
+	return [Math.floor(x / y), x % y];
+}
+
+// return the url for square at (x,y,size) within passed url
+//
+// Parameters:
+//   url: url of screen other parameters are relative to
+//   x: x coordinate (tile coordinates)
+//   y: y coordinate (tile coordinates)
+//   size: size of square in tile coordinates
+function rel_url(url, x, y, size) {
+	var levels = power_of_2(IN_WIDTH / size);
+	var url, dots, c;
+	var inner_x, inner_y;
+	[url, dots] = split_url(url);
+	if(dots) {
+		var dx, dy;
+		c = url.substr(url.length - 1);
+		url = url.substr(0, url.length - 1);
+		if(dots == '..') {
+			if(levels == 1) {
+				alert("rel_url doesn't yet handle zooming by only 2X");
+				return 'invalid';
+			}
+			[dx, dy] = url_char_to_xy(quantize_url_char(c, 4));
+			dx *= 32;
+			dy *= 32;
+			dx += Math.floor(x / 2);
+			dy += Math.floor(y / 2);
+			levels -= 2;
+		} else { // dots == '.'
+			[dx, dy] = url_char_to_xy(quantize_url_char(c, 2));
+			dx *= 32;
+			dy *= 32;
+			dx += Math.floor(x / 4);
+			dy += Math.floor(y / 4);
+			levels -= 1;
+		}
+		[x, inner_x] = div_mod(dx, 32);
+		[y, inner_y] = div_mod(dy, 32);
+		c = g_charset.charAt(x + (y * 8));
+		x = inner_x * 8;
+		y = inner_y * 8;
+		url += c;
+	}
+
+	// log('levels: ' + levels + ', x: ' + x + ', y: ' + y);
+
+	while(levels) {
+		[x, inner_x] = div_mod(x, 32);
+		[y, inner_y] = div_mod(y, 32);
+		c = g_charset.charAt(x + (y * 8));
+		if(levels < 3) {
+			if(levels == 1) {
+				c = quantize_url_char(c, 4);
+				c += '..';
+			} else { // levels == 2
+				c = quantize_url_char(c, 2);
+				c += '.';
+			}
+			levels = 0;
+		} else {
+			levels -= 3;
+			x = inner_x * 8;
+			y = inner_y * 8;
+		}
+		url += c;
+	}
+
+	return url;
+}
+
+//var last_log = '';
+//var last_last_log = '';
+function log(msg) {
+	$('#log').html(msg);
+	//$('#log').html(last_last_log + '<br />' + last_log + '<br />' + msg);
+	//last_last_log = last_log;
+	//last_log = msg;
+}
+
+function brush_coords(url, x, y, size) {
+	log(rel_url(url, x / 2, y / 2, size / 2)); // FIXME because g_brush_size and others are in screen pixels
+}
+
 // pass (x, y) of mouse cursor (screen pixels) relative to square
 function move_brush_to(x, y) {
 	// move to the top/left corner of the brush-sized square we're in
@@ -519,6 +630,8 @@ function move_brush_to(x, y) {
 	y += 1;
 
 	brush_layer.css('background-position', x + 'px ' + y + 'px');
+
+	brush_coords(g_url, g_brush_x, g_brush_y, g_brush_size);
 }
 
 // event callback for mousemove on brush layer
