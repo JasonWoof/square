@@ -535,42 +535,26 @@ function rel_url(url, x, y, size) {
 	var url, dots, c;
 	var inner_x, inner_y;
 	[url, dots] = split_url(url);
+	// all the math is scaled up a couple bits, so if we need to zoom out once or twice for the dots we're still working with integers
+	x *= 4;
+	y *= 4;
+
+	// if the url has dots, we strip them, and the last char, and adjust x, y and levels accordingly
 	if(dots) {
-		var dx, dy;
 		c = url.substr(url.length - 1);
 		url = url.substr(0, url.length - 1);
-		if(dots == '..') {
-			if(levels == 1) {
-				alert("rel_url doesn't yet handle zooming by only 2X");
-				return 'invalid';
-			}
-			[dx, dy] = url_char_to_xy(quantize_url_char(c, 4));
-			dx *= 32;
-			dy *= 32;
-			dx += Math.floor(x / 2);
-			dy += Math.floor(y / 2);
-			levels -= 2;
-		} else { // dots == '.'
-			[dx, dy] = url_char_to_xy(quantize_url_char(c, 2));
-			dx *= 32;
-			dy *= 32;
-			dx += Math.floor(x / 4);
-			dy += Math.floor(y / 4);
-			levels -= 1;
-		}
-		[x, inner_x] = div_mod(dx, 32);
-		[y, inner_y] = div_mod(dy, 32);
-		c = g_charset.charAt(x + (y * 8));
-		x = inner_x * 8;
-		y = inner_y * 8;
-		url += c;
+		var zooms = 3 - dots.length;
+		var dx, dy; [dx, dy] = url_char_to_xy(c);
+		x = (dx * 128) + (x >> zooms);
+		y = (dy * 128) + (y >> zooms);
+		levels += zooms;
 	}
 
 	// log('levels: ' + levels + ', x: ' + x + ', y: ' + y);
 
-	while(levels) {
-		[x, inner_x] = div_mod(x, 32);
-		[y, inner_y] = div_mod(y, 32);
+	while(levels > 0) {
+		[x, inner_x] = div_mod(x, 128);
+		[y, inner_y] = div_mod(y, 128);
 		c = g_charset.charAt(x + (y * 8));
 		if(levels < 3) {
 			if(levels == 1) {
@@ -580,12 +564,10 @@ function rel_url(url, x, y, size) {
 				c = quantize_url_char(c, 2);
 				c += '.';
 			}
-			levels = 0;
-		} else {
-			levels -= 3;
-			x = inner_x * 8;
-			y = inner_y * 8;
 		}
+		levels -= 3;
+		x = inner_x * 8;
+		y = inner_y * 8;
 		url += c;
 	}
 
