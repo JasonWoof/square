@@ -11,9 +11,10 @@ var in_box_bytes = in_row_bytes / 4;
 var in_box_vert = in_row_bytes * OUT_BOX_HEIGHT;
 var in_pixels;
 var brush_layer;
-var g_brush_size;
-var g_brush_x;
-var g_brush_y;
+var g_brush_size = 4;
+var g_brush_x = -500;
+var g_brush_y = -500;
+var g_tab = 'nav';
 var squares_tb, squares_bt, squares_lr, squares_rl;
 var front_squares_tb, front_squares_bt, front_squares_lr, front_squares_rl;
 var g_editor_toggle = false;
@@ -494,8 +495,10 @@ function hide_brush() {
 }
 
 function select_brush(brush_size) {
+	$('#brush' + g_brush_size).removeClass('selected_brush');
 	g_brush_size = brush_size;
-	brush_layer.css('background-image', 'url(images/' + brush_size + '_opaque.png)');
+	$('#brush' + g_brush_size).addClass('selected_brush');
+	brush_layer.css('background-image', 'url(images/brush_' + brush_size + '.png)');
 }
 
 // return what power of 2 x is
@@ -584,14 +587,14 @@ function log(msg) {
 }
 
 function brush_coords(url, x, y, size) {
-	log(rel_url(url, x / 2, y / 2, size / 2)); // FIXME because g_brush_size and others are in screen pixels
+	log(rel_url(url, x / 2, y / 2, size));
 }
 
 // pass (x, y) of mouse cursor (screen pixels) relative to square
 function move_brush_to(x, y) {
 	// move to the top/left corner of the brush-sized square we're in
-	x -= x % g_brush_size;
-	y -= y % g_brush_size;
+	x -= x % (g_brush_size * 2);
+	y -= y % (g_brush_size * 2);
 
 	if(x < 0 || y < 0 || x >= 512 || y >= 512) {
 		hide_brush();
@@ -664,14 +667,33 @@ function brush_clicked(e) {
 		// brush is hidden when not in a valid location by moving it to -300px
 		return;
 	}
-	xor_square(g_brush_x / 2, g_brush_y / 2, g_brush_size / 2); // "/ 2" because everything is in screen coordinates
+	xor_square(g_brush_x / 2, g_brush_y / 2, g_brush_size); // "/ 2" because everything is in screen coordinates
+}
+
+function show_tab(tab) {
+	if(tab == g_tab) {
+		return;
+	}
+	g_tab = tab;
+	if(tab == 'nav') {
+		$('#edit_body').addClass('hidden');
+		$('#nav_body').removeClass('hidden');
+	} else {
+		$('#nav_body').addClass('hidden');
+		$('#edit_body').removeClass('hidden');
+	}
 }
 
 function start_editing(brush_size) {
+	if(brush_size == 0) {
+		brush_size = 4;
+		show_tab('edit');
+	}
 	select_brush(brush_size);
 	show_brush_layer();
 }
 
 function stop_editing() {
+	show_tab('nav');
 	hide_brush_layer();
 }

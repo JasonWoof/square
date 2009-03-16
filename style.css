@@ -66,10 +66,6 @@ a:hover {
 	z-index: 0
 }
 
-#buttons {
-	margin: 30px 0;
-}
-
 .button {
 	margin: 10px auto 10px 0px;
 	border: 2px solid #333;
@@ -86,4 +82,48 @@ a:hover {
 	background: #333;
 }
 
+.brush {
+	display: inline-block;
+	height: 24px;
+	width: 24px;
+	vertical-align: middle;
+	background-color: transparent;
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	border: 1px solid #ddd;
+}
+
+.brush:hover {
+	background-color: #aaa;
+	border: 1px solid #777;
+}
+
+.selected_brush {
+	background-color: #bbb;
+	border: 1px solid #888
+}
+
+#brush1  { background-image: url(images/brush_1.png); }
+#brush2  { background-image: url(images/brush_2.png); }
+#brush4  { background-image: url(images/brush_4.png); }
+#brush8  { background-image: url(images/brush_8.png); }
+#brush16 { background-image: url(images/brush_16.png); }
+#brush32 { background-image: url(images/brush_32.png); }
+
+#brush16 {
+	height: 40px;
+	width: 40px;
+}
+
+#brush32 {
+	height: 72px;
+	width: 72px;
+}
+
 .first { padding-top: 0px; margin-top: 0px; }
+
+.hidden {
+	position: absolute;
+	left: -4000px;
+	width: 200px;
+}

@@ -16,25 +16,37 @@
 </div>
 
 <div id="panel"><div id="panel_inner">
-  <h3 class="first">Click anywhere in the box to the left to zoom in.</h3>
 
-  <div id="buttons">
+  <div id="nav_body">
+    <h3 class="first">Click anywhere in the box to the left to zoom in.</h3>
     <div class="button" id="zoom_out" onclick="zoom_to('out')">Zoom Out</div>
-    <div class="button" onclick="start_editing(2)">Edit 2</div>
-    <div class="button" onclick="start_editing(4)">Edit 4</div>
-    <div class="button" onclick="start_editing(8)">Edit 8</div>
-    <div class="button" onclick="start_editing(16)">Edit 16</div>
-    <div class="button" onclick="start_editing(32)">Edit 32</div>
-    <div class="button" onclick="start_editing(64)">Edit 64</div>
-    <div class="button" onclick="stop_editing()">Stop Editing</div>
+    <div class="button" onclick="start_editing(0)">Edit</div>
+  </div>
+  <div id="edit_body" class="hidden">
+    <h3 class="first">Click anywhere in the box to the left to draw.</h3>
+    <p>Tips:</p>
+    <ul>
+      <li>Don't drag (only clicking is supported currently)</li>
+      <li>Clicking polarizes (ie turns white to black and black to white) so you can't destroy art that is too small to see</li>
+    </ul>
+    <div id="brushes">Choose a brush:<br />
+      <!--<div id="brush1"  class="brush" onclick="start_editing(1)"></div>-->
+      <div id="brush2"  class="brush" onclick="start_editing(2)"></div>
+      <div id="brush4"  class="brush selected_brush" onclick="start_editing(4)"></div>
+      <div id="brush8"  class="brush" onclick="start_editing(8)"></div>
+      <div id="brush16" class="brush" onclick="start_editing(16)"></div>
+      <!--<div id="brush32" class="brush" onclick="start_editing(32)"></div>-->
+    </div>
+    <div class="button" onclick="stop_editing()">Zoom mode</div>
+
+    <h3>Warning:</h3>
+
+    <p>This site is under construction. <span style="color: red">You cannot save yet.</span>
+
   </div>
 
   <div id="log"></div>
 
-
-  <h3>Warning:</h3>
-
-  <p>This site is under construction. <span style="color: red">You cannot save yet.</span>
 
   <div id="copyright"><a href="http://github.com/JasonWoof/square/tree/master">The code</a> that runs this website is licensed under the <a href="http://www.gnu.org/licenses/agpl.html">GNU AGPL</a>.</div>
 </div></div>

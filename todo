@@ -1,8 +1,10 @@
-    Code
-	make zoom-out animation (careful about what shows through as it shrinks)
-	deal properly (ignore?) clicks during animations
-	make it so you can edit!
-		learn how to get coords of mouse clicks (see my color picker)
+    Front End
+done?	deal properly (ignore?) clicks during animations
+	apply click url (get x,y,size from url, and call xor_blit)
+*	queue click urls (diffs) and send a batch to the server
+    Back End
+*	accept, log and apply client diffs
+	subscription system where diffs from clients are queued up for other clients in the area (switch to persistant server?)
 
     Document
 	data structure
@@ -22,11 +24,11 @@
 
 
     NOTES
-	web address will pulls from this charset:
+	web address use this charset:
 		abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-
 	every 3 zooms adds another character to the url in this order:
 		medium: ends with two periods, uses the t64 db column
 		easy: ends with one period, uses the t128 db column
 		hard: no periods, uses the the t32 db column
 	The starting url is "" (hard)
-	each db record contains a 128x128 tile, and a cache of that tile scaled down to 50% and 25%
+	each db record contains a 128x128 tile (t128), and that tile scaled down to 50% (t64) and 25% (t32)
