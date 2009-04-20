@@ -577,17 +577,66 @@ function rel_url(url, x, y, size) {
 	return url;
 }
 
-//var last_log = '';
+// return "url" which has one digit (0-3) per zoom level
+function url_to_easyurl(url) {
+	var out, i, c, dots;
+	[url, dots] = split_url(url);
+	out = '';
+	for(i = 0; i < url.length; ++i) {
+		c = g_charset.indexOf(url[i]);
+		out += (( Math.floor(c / 32)       * 2) + (Math.floor(c / 4) % 2));
+		out += (((Math.floor(c / 16) % 2)  * 2) + (Math.floor(c / 2) % 2));
+		out += (((Math.floor(c / 8) % 2)   * 2)  + (c % 2));
+	}
+	out = out.substr(0, out.length - dots.length);
+	return out;
+}
+
+
+// return (x,y,size) for url (relative to frame_url)
+//
+// Parameters:
+//   frame_url: url of screen other parameter is relative to
+//   url: url of screen other parameters are relative to
+function url_to_xysize(frame_url, url) {
+	return easy_url_to_xysize(url_to_easyurl(frame_url), url_to_easyurl(url));
+}
+
+function easy_url_to_xysize(frame_url, url) {
+	var x, y, size, c, i;
+
+	x = 0;
+	y = 0;
+	size = 256;
+
+	for(i = frame_url.length; i < url.length; ++i) {
+		size /= 2;
+		x += size * (url.charAt(i) % 2);
+		y += size * Math.floor(url.charAt(i) / 2);
+	}
+
+	return [x, y, size];
+}
+
+var last_log = '';
 //var last_last_log = '';
 function log(msg) {
-	$('#log').html(msg);
+	//$('#log').html(msg);
+	$('#log').html(last_log + '<br />' + msg);
 	//$('#log').html(last_last_log + '<br />' + last_log + '<br />' + msg);
 	//last_last_log = last_log;
-	//last_log = msg;
+	last_log = msg;
 }
 
 function brush_coords(url, x, y, size) {
-	log(rel_url(url, x / 2, y / 2, size));
+	var xx, yy, ss, rel;
+	// for some reason we're getting screen coords;
+	x /= 2;
+	y /= 2;
+	rel = rel_url(url, x, y, size);
+	log(rel);
+	[xx, yy, ss] = url_to_xysize(g_url, rel);
+	log('x: (' + x + ' -> ' + xx + ')  y: (' + y + ' -> ' + yy + ')  size: (' + size + ' -> ' + ss + ')');
 }
 
 // pass (x, y) of mouse cursor (screen pixels) relative to square
