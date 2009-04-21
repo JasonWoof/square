@@ -7,7 +7,10 @@ $GLOBALS['crs_count'] = -1; # create random square needs to know how many times 
 
 # pass an array (ints or a string)
 # width is in pixels
-function print_full_table($a, $width, $rowbytes) {
+function print_full_table($a, $width, $rowbytes = 0) {
+	if($rowbytes == 0) {
+		$rowbytes = ceil($width / 8);
+	}
 	$width;
 	$byte_width = $width / 8;
 	$i = 0;
@@ -47,34 +50,6 @@ function print_table($a, $width, $rowbytes) {
 	}
 }
 
-function downsample($tl, $tr, $bl, $br) {
-	# add every 2 pixels together.
-	# result is 2-bit sums every 2 bits
-	$tl = (($tl & 0xaa) >> 1) + ($tl & 0x55);
-	$tr = (($tr & 0xaa) >> 1) + ($tr & 0x55);
-	$bl = (($bl & 0xaa) >> 1) + ($bl & 0x55);
-	$br = (($br & 0xaa) >> 1) + ($br & 0x55);
-
-	$out = 0;
-
-	# mask out the 2-bit sums from differnt rows, and add together. result r is 0-4 inclusive
-	# subtract that result from 1 to get a small negative number if r is greater than 1
-	# copy a high bit into the output char (we'll shift it down all at once later)
-	$out |= (1 - ((($tl & 0xc0) >> 6) + (($bl & 0xc0) >> 6))) & 0x80000000;
-	$out |= (1 - ((($tl & 0x30) >> 4) + (($bl & 0x30) >> 4))) & 0x40000000;
-	$out |= (1 - ((($tl & 0x0c) >> 2) + (($bl & 0x0c) >> 2))) & 0x20000000;
-	$out |= (1 - ((($tl & 0x03)     ) + (($bl & 0x03)     ))) & 0x10000000;
-
-	$out |= (1 - ((($tr & 0xc0) >> 6) + (($br & 0xc0) >> 6))) & 0x08000000;
-	$out |= (1 - ((($tr & 0x30) >> 4) + (($br & 0x30) >> 4))) & 0x04000000;
-	$out |= (1 - ((($tr & 0x0c) >> 2) + (($br & 0x0c) >> 2))) & 0x02000000;
-	$out |= (1 - ((($tr & 0x03)     ) + (($br & 0x03)     ))) & 0x01000000;
-
-	$out >>= 24;
-
-	return $out;
-}
-
 function create_tile_from_quadrant($quad) {
 	# set the pixel index we're copying from
 	$pi = ($quad % 2) * 16;
@@ -90,7 +65,7 @@ function create_tile_from_quadrant($quad) {
 	$t128 = str_repeat("\000", 128 * 128 / 8);
 
 	for($y = 0; $y < 32; ++$y) {
-		for($x = 0; $x < 4; ++$x) { # one byte at a time, not one bit
+		for($x = 0; $x < 4; ++$x) {
 			# xy
 			$p00 = $GLOBALS['pixels'][$pi                 ];
 			$p01 = $GLOBALS['pixels'][$pi + PIXELS_RB ];

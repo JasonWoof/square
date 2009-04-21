@@ -1,10 +1,3 @@
-/*****
-*
-*   The contents of this file were written by Kevin Lindsey
-*   copyright 2002-2003 Kevin Lindsey
-*
-*****/
-
 function tag(name) {
     return document.getElementById(name);
 }
@@ -36,7 +29,7 @@ function log(msg) {
 
 
 
-base64_charset = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z","a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","0","1","2","3","4","5","6","7","8","9","+","/"];
+base64_charset = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z','0','1','2','3','4','5','6','7','8','9','+','/'];
 
 function base64_encode(data){
 	var size;
@@ -46,7 +39,7 @@ function base64_encode(data){
 	var result_i;
 	var tri;
 
-	
+
 	size = data.length;
 	extra = (3 - (size % 3)) % 3; // the number of extra base64 chars we need as filler to be alligned
 	if(extra != 0) {
@@ -199,7 +192,7 @@ function png_init(height, width) {
 	png_array[png_index++] = 13;
 
 	crc_start = png_index;
-	
+
 	// chunk type "IHDR"
 	png_array[png_index++] = 73;
 	png_array[png_index++] = 72;
@@ -259,7 +252,7 @@ function png_init(height, width) {
 
 	// save this in a global
 	crc_start = png_index;
-	
+
 	// chunk type "IDAT"
 	png_array[png_index++] = 73;
 	png_array[png_index++] = 68;
@@ -274,7 +267,7 @@ function png_init(height, width) {
 	png_array[png_index++] = 1; // no compression, last block
 
 	// deflate block length
-	length = Math.floor(((width + 8) * height + 7) / 8);
+	length = (Math.ceil(width / 8) + 1) * height;
 	length_most = length >> 8;
 	length_least = length & 0xff;
 	png_array[png_index++] = length_least;
@@ -285,7 +278,7 @@ function png_init(height, width) {
 	////////////////////////
 	// PIXELS
 	////////////////////////
-	
+
 	// save index for pixels (also where adler-32 checksum starts)
 	pixels_start = png_index;
 	adler_start = png_index;
@@ -339,7 +332,7 @@ function make_png() {
 	png_array[index++] = (adler >> 16) & 0xff;
 	png_array[index++] = (adler >> 8) & 0xff;
 	png_array[index++] = adler & 0xff;
-	
+
 	// calculate CRC32 checksum for IDAT chunk
 	idat_crc = crc32(png_array, crc_start, crc_end);
 	index = crc_end;

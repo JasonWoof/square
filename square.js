@@ -14,6 +14,9 @@ var brush_layer;
 var g_brush_size = 4;
 var g_brush_x = -500;
 var g_brush_y = -500;
+var g_brush_url = '';
+var g_brush_easyurl = '';
+var g_changes = [];
 var g_tab = 'nav';
 var squares_tb, squares_bt, squares_lr, squares_rl;
 var front_squares_tb, front_squares_bt, front_squares_lr, front_squares_rl;
@@ -45,6 +48,37 @@ function call_me(rec) {
 		replace_with_bitmap(rec.responseText);
 	}
 }
+
+function save_changes() {
+	save(g_changes);
+	g_changes = [];
+}
+
+// send our clicks to the server (async)
+function save(changes) {
+	var url_data, i;
+
+	if(!changes.length) {
+		return;
+	}
+
+	url_data = '';
+	for(i = 0; i < changes.length; ++i) {
+		if(url_data) {
+			url_data += '%20';
+		}
+		url_data += changes[i];
+	}
+
+	sendRequest('save', saved, 'changes=' + url_data);
+}
+
+function saved(rec) {
+	log('');
+	log(rec.responseText);
+}
+
+
 
 var g_z = 0;
 
@@ -98,25 +132,19 @@ function toggle_editor() {
 
 // copy one square worth of in_pixels into png encoder memory
 function square_to_png_buf(square_num) {
-	var index;
-	var i;
-	var b;
-	var bits;
+	var out_index, in_index;
+	var x, y;
 
-	index = pixels_start;
+	out_index = pixels_start;
 	in_index = in_box_bytes * (square_num % 4);
 	in_index += Math.floor(square_num / 4) * in_box_vert;
 	
-	// 'i' counts the number of bytes of pixels (not counting filter bytes) to output
-	for(i = 0; i < height*width/8; i++) {
-		if(i % (width/8) == 0) {
-			// filter type at the begining of each scanlines
-			if(i) {
-				in_index += in_row_bytes - in_box_bytes;
-			}
-			png_array[index++] = 0;
+	for(y = 0; y < 64; ++y) {
+		png_array[out_index++] = 0;
+		for(x = 0; x < 8; ++x) {
+			png_array[out_index++] = (in_pixels[in_index + x]);
 		}
-		png_array[index++] = (in_pixels[in_index++]);
+		in_index += 256 / 8;
 	}
 }
 
@@ -208,17 +236,43 @@ function unzoom_squares() {
 	}
 }
 
+function json_to_in_pixels(data) {
+	var rle = eval(data);
+	var out_i = 0;
+	var color = 0;
+	var bits = 0;
+	var cur = 0;
+	var incoming;
+	for(i = 0; i < rle.length; ++i) {
+		incoming = rle[i];
+		while(incoming) {
+			if(incoming < 8 - bits) {
+				cur <<= incoming;
+				cur |= color >> (8 - incoming);
+				bits += incoming;
+				incoming = 0;
+			} else {
+				cur <<= 8 - bits;
+				cur |= color >> bits;
+				in_pixels[out_i++] = cur;
+				incoming -= (8 - bits);
+				cur = 0;
+				bits = 0;
+			}
+		}
+		color ^= 0xff;
+	}
+}
 
 // render 256x256 bitmap (passed as string)
 function replace_with_bitmap(data) {
 	var square_num;
 	var i;
 
-	for(i = 0; i < data.length; ++i) {
-		in_pixels[i] = (data.charCodeAt(i) & 0xff);
-	}
+	json_to_in_pixels(data);
 
 	toggle_editor();
+
 
 	for(square_num = 0; square_num < 16; square_num++) {
 		render_square(square_num);
@@ -577,7 +631,10 @@ function rel_url(url, x, y, size) {
 	return url;
 }
 
-// return "url" which has one digit (0-3) per zoom level
+// return an "easyurl" which has one digit (0-3) per zoom level
+//
+// this format is much much much easier to work with and all existing
+// client-side code should be updated to use it
 function url_to_easyurl(url) {
 	var out, i, c, dots;
 	[url, dots] = split_url(url);
@@ -629,14 +686,11 @@ function log(msg) {
 }
 
 function brush_coords(url, x, y, size) {
-	var xx, yy, ss, rel;
 	// for some reason we're getting screen coords;
 	x /= 2;
 	y /= 2;
-	rel = rel_url(url, x, y, size);
-	log(rel);
-	[xx, yy, ss] = url_to_xysize(g_url, rel);
-	log('x: (' + x + ' -> ' + xx + ')  y: (' + y + ' -> ' + yy + ')  size: (' + size + ' -> ' + ss + ')');
+	g_brush_url = rel_url(url, x, y, size);
+	g_brush_easyurl = url_to_easyurl(g_brush_url);
 }
 
 // pass (x, y) of mouse cursor (screen pixels) relative to square
@@ -716,6 +770,7 @@ function brush_clicked(e) {
 		// brush is hidden when not in a valid location by moving it to -300px
 		return;
 	}
+	g_changes[g_changes.length] = g_brush_url;
 	xor_square(g_brush_x / 2, g_brush_y / 2, g_brush_size); // "/ 2" because everything is in screen coordinates
 }
 

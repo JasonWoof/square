@@ -455,8 +455,7 @@ function binary_main() {
 	}
 
 	if(!am_debugging()) {
-		header('Content-Type: application/octet-stream; charset=us-ascii');
-		header('Content-Length: 8192');
+		header('Content-Type: text/javascript; charset=us-ascii');
 	}
 	$SQUARE_WIDTH = 256;
 
@@ -484,9 +483,28 @@ function binary_main() {
 	
 
 
+	$color = 0;
+	$out = '[';
+	$cur = 0;
 	for($i = 0; $i < PIXELS_RB * 256; $i++) {
-		print(chr($GLOBALS['pixels'][$i]));
+		$byte = $GLOBALS['pixels'][$i];
+		if($byte == $color) {
+			$cur += 8;
+		} else {
+			for($bit = 0x80; $bit; $bit >>= 1) {
+				if((($byte & $bit) ^ ($bit & $color)) == 0) {
+					++$cur;
+				} else {
+					$out .= $cur . ',';
+					$cur = 1;
+					$color ^= 0xff;
+				}
+			}
+		}
 	}
+	$out .= $cur . ']';
+	print($out);
+	exit();
 }
 
 

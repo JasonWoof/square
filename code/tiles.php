@@ -154,18 +154,24 @@ function get_easy_tiles($url) {
 }
 
 # get the 128x128 version of the tile
-function tile_get_128($url) {
-	$tile = db_get_value('tiles', 't128', 'where url=%"', $url);
-	if($tile === false) {
-		#return false;
-		return str_repeat("\000", 128 * 128 / 8);
+function tile_get_128($url, $array = false) {
+	$row = db_get_row('tiles', 'id,t128', 'where url=%"', $url);
+	if($row === false) {
+		$id = 0;
+		$t128 = str_repeat("\000", 128 * 128 / 8);
+	} else {
+		list($id, $t128) = $row;
 	}
 
 	if($GLOBALS['debug_tiles']) {
-		print_full_table($tile, 128, 128 / 8);
+		print_full_table($t128, 128, 128 / 8);
 	}
 
-	return $tile;
+	if($array) {
+		return array($t128, $id);
+	}
+
+	return $t128;
 }
 
 # get the 64x64 version of the tile
@@ -212,7 +218,6 @@ function color_pixel($x, $y) {
 	$GLOBALS['pixels'][floor($x / 8) + ($y * PIXELS_RB)] ^= 0x80 >> $bit;
 }
 
-# on my machine, this function takes up about 10% of the total execution time
 function color_square($x, $y, $width) {
 	# it's always going to be alligned to $width, and $width will never be 1
 	$bit = $x % 8;
@@ -236,9 +241,75 @@ function color_square($x, $y, $width) {
 			$ymax = ($y + $width) * PIXELS_RB;
 			for($yy = $y * PIXELS_RB; $yy < $ymax; $yy += PIXELS_RB) {
 				for($xx = $x; $xx < $xmax; $xx++) {
-					$GLOBALS['pixels'][$xx + $yy] = 0xff;
+					$GLOBALS['pixels'][$xx + $yy] ^= 0xff;
 				}
 			}
 		return;
 	}
+}
+
+function color_tile($x, $y, $width, &$tile) {
+	# it's always going to be alligned to $width, and $width will never be 1
+	$bit = $x % 8;
+	switch($width) {
+		case 1:
+			$i = floor($x / 8) + ($y * T128_RB);
+			$tile[$i] = chr(ord($tile[$i]) ^ (0x80 >> $bit));
+			return;
+		case 2:
+			$i = floor($x / 8) + ($y * T128_RB);
+			$tile[$i] = chr(ord($tile[$i]) ^ (0xc0 >> $bit));
+			$i = floor($x / 8) + (($y + 1) * T128_RB);
+			$tile[$i] = chr(ord($tile[$i]) ^ (0xc0 >> $bit));
+		return;
+		case 4:
+			$i = floor($x / 8) + ($y * T128_RB);
+			$tile[$i] = chr(ord($tile[$i]) ^ (0xf0 >> $bit));
+			$i = floor($x / 8) + (($y + 1) * T128_RB);
+			$tile[$i] = chr(ord($tile[$i]) ^ (0xf0 >> $bit));
+			$i = floor($x / 8) + (($y + 2) * T128_RB);
+			$tile[$i] = chr(ord($tile[$i]) ^ (0xf0 >> $bit));
+			$i = floor($x / 8) + (($y + 3) * T128_RB);
+			$tile[$i] = chr(ord($tile[$i]) ^ (0xf0 >> $bit));
+		return;
+		default:
+			$x = floor($x / 8);
+			$xmax = $x + floor($width / 8);
+			$ymax = ($y + $width) * T128_RB;
+			for($yy = $y * T128_RB; $yy < $ymax; $yy += T128_RB) {
+				for($xx = $x; $xx < $xmax; $xx++) {
+					$tile[$xx + $yy] = chr(ord($tile[$xx + $yy]) ^ 0xff);
+				}
+			}
+		return;
+	}
+}
+
+function downsample($tl, $tr, $bl, $br) {
+	# add every 2 pixels together.
+	# result is 2-bit sums every 2 bits
+	$tl = (($tl & 0xaa) >> 1) + ($tl & 0x55);
+	$tr = (($tr & 0xaa) >> 1) + ($tr & 0x55);
+	$bl = (($bl & 0xaa) >> 1) + ($bl & 0x55);
+	$br = (($br & 0xaa) >> 1) + ($br & 0x55);
+
+	$out = 0;
+
+	# mask out the 2-bit sums from differnt rows, and add together. result r is 0-4 inclusive
+	# subtract that result from 1 to get a small negative number if r is greater than 1
+	# copy a high bit into the output char (we'll shift it down all at once later)
+	$out |= (1 - ((($tl & 0xc0) >> 6) + (($bl & 0xc0) >> 6))) & 0x80000000;
+	$out |= (1 - ((($tl & 0x30) >> 4) + (($bl & 0x30) >> 4))) & 0x40000000;
+	$out |= (1 - ((($tl & 0x0c) >> 2) + (($bl & 0x0c) >> 2))) & 0x20000000;
+	$out |= (1 - ((($tl & 0x03)     ) + (($bl & 0x03)     ))) & 0x10000000;
+
+	$out |= (1 - ((($tr & 0xc0) >> 6) + (($br & 0xc0) >> 6))) & 0x08000000;
+	$out |= (1 - ((($tr & 0x30) >> 4) + (($br & 0x30) >> 4))) & 0x04000000;
+	$out |= (1 - ((($tr & 0x0c) >> 2) + (($br & 0x0c) >> 2))) & 0x02000000;
+	$out |= (1 - ((($tr & 0x03)     ) + (($br & 0x03)     ))) & 0x01000000;
+
+	$out >>= 24;
+	$out &= 0xff; // >> is arithmetic
+
+	return $out;
 }
