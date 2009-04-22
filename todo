@@ -1,7 +1,10 @@
     Front End
 **	ignore clicks (on square) during zoom animations
-****	design a decent gui
-**	make the gui look nice
+	create about page
+	create tutorial page
+	create donation page
+	replace brush images with floating div (with border)
+**	design a cool background or something to make the site more hip
 	when recording edits, remove duplicates from g_changes
 	save gui
 		change save button to "saving..." then "saved." when clicked/saved

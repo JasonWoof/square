@@ -10,43 +10,46 @@
   <script type="text/javascript" src="square.js"></script>
 </head>
 
-<body onload="load('~starting_url~')">
+<body id="~basename~_body" onload="load('~starting_url~')">
 <div id="square_frame">
-  <div id="loading">Loading... If this message does not dissapear momentarily, then you'll probably have to enable javascript.</div>
+  <div id="loading">Loading... If this message does not disappear momentarily, then you'll probably have to enable javascript.</div>
 </div>
 
 <div id="panel"><div id="panel_inner">
 
-  <div id="nav_body">
-    <h3 class="first">Click anywhere in the box to the left to zoom in.</h3>
-    <div class="button" id="zoom_out" onclick="zoom_to('out')">Zoom Out</div>
-    <div class="button" onclick="start_editing(0)">Edit</div>
-  </div>
-  <div id="edit_body" class="hidden">
-    <h3 class="first">Click anywhere in the box to the left to draw.</h3>
-    <p>Tips:</p>
-    <ul>
-      <li>Don't drag (only clicking is supported currently)</li>
-      <li>Clicking polarizes (ie turns white to black and black to white) so you can't destroy art that is too small to see</li>
-    </ul>
-    <div id="brushes">Choose a brush:<br />
-      <!--<div id="brush1"  class="brush" onclick="start_editing(1)"></div>-->
-      <div id="brush2"  class="brush" onclick="start_editing(2)"></div>
-      <div id="brush4"  class="brush selected_brush" onclick="start_editing(4)"></div>
-      <div id="brush8"  class="brush" onclick="start_editing(8)"></div>
-      <div id="brush16" class="brush" onclick="start_editing(16)"></div>
-      <!--<div id="brush32" class="brush" onclick="start_editing(32)"></div>-->
+  <h1 id="main_head">Zooming Art</h1>
+  <h3 id="main_subhead">That anyone can edit</h2>
+
+  <h2>Zoom</h2>
+  <div id="zoom_area">
+    <div id="zoom_widget">
+      <div id="zoom_widget_tl" class="button" onclick="zoom_tl()">in<div class="outer"><div class="inner"></div></div></div>
+      <div id="zoom_widget_tr" class="button" onclick="zoom_tr()">in<div class="outer"><div class="inner"></div></div></div>
+      <div id="zoom_widget_bl" class="button" onclick="zoom_bl()">in<div class="outer"><div class="inner"></div></div></div>
+      <div id="zoom_widget_br" class="button" onclick="zoom_br()">in<div class="outer"><div class="inner"></div></div></div>
     </div>
-    <div class="button" onclick="save_changes()">Save</div>
-    <div class="button" onclick="stop_editing()">Zoom mode</div>
-
-    <h3>Warning:</h3>
-
-    <p>This site is under construction. Please have fun, but know that <span style="color: red">your work will likely dissapear at some point.</span>
-
+    <div id="zoom_out" class="button" onclick="zoom_to('out')">zoom out</div>
   </div>
-
   <p id="permalink"><a id="permalink_a" href="#">permalink</a></p>
+
+  <h2>Draw</h2>
+  <div class="sub_note">Just pick one of these brushes and click on the art!</div>
+  <div id="brushes">
+    <div id="brush_2" class="brush" onclick="start_editing(2)"><div></div></div>
+    <div id="brush_4" class="brush" onclick="start_editing(4)"><div></div></div>
+    <div id="brush_8" class="brush" onclick="start_editing(8)"><div></div></div>
+    <div id="brush_16" class="brush" onclick="start_editing(16)"><div></div></div>
+  </div>
+  <p><a href="#" onclick="return save_changes()">Save</a></p>
+
+  <h2>Learn</h2>
+  <div><a href="tutorial">Tutorial</a></div>
+  <div><a href="about">about ZoomingArt.com</a></div>
+
+  <h2>Donate</h2>
+  <div>Please <a href="donate">support this project</a>!</div>
+
+
 
   <div id="log"></div>
 

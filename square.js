@@ -36,9 +36,9 @@ function load(url) {
 
 function get_and_render(url) {
 	g_url = url; // set the global
-	tag('permalink_a').href = "?url=" + url;
+	tag('permalink_a').href = "?z=" + url;
 
-	sendRequest('binary?url=' + url, call_me);
+	sendRequest('binary?z=' + url, call_me);
 }
 
 function call_me(rec) {
@@ -53,6 +53,7 @@ function call_me(rec) {
 function save_changes() {
 	save(g_changes);
 	g_changes = [];
+	return false; // don't activate href
 }
 
 // send our clicks to the server (async)
@@ -340,6 +341,8 @@ function zoom_to(quadrant) {
 	var letters;
 	var dots;
 
+	stop_editing();
+
 	if(animating) {
 		return;
 	}
@@ -552,9 +555,9 @@ function hide_brush() {
 }
 
 function select_brush(brush_size) {
-	$('#brush' + g_brush_size).removeClass('selected_brush');
+	$('#brush_' + g_brush_size).removeClass('selected_brush');
 	g_brush_size = brush_size;
-	$('#brush' + g_brush_size).addClass('selected_brush');
+	$('#brush_' + g_brush_size).addClass('selected_brush');
 	brush_layer.css('background-image', 'url(images/brush_' + brush_size + '.png)');
 }
 
@@ -802,5 +805,6 @@ function start_editing(brush_size) {
 
 function stop_editing() {
 	show_tab('nav');
+	select_brush(0);
 	hide_brush_layer();
 }

@@ -5,9 +5,9 @@ require_once('code/db.php');
 
 
 function index_main() {
-	if($_REQUEST['url']) {
-		$url = ereg_replace('[^a-zA-Z0-9_-]', '', $_REQUEST['url']);
-		$dots = ereg_replace('[^.]', '', $_REQUEST['url']);
+	if($_REQUEST['z']) {
+		$url = ereg_replace('[^a-zA-Z0-9_-]', '', $_REQUEST['z']);
+		$dots = ereg_replace('[^.]', '', $_REQUEST['z']);
 		if(strlen($dots) < 3) {
 			$url .= $dots;
 		}

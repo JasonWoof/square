@@ -435,8 +435,8 @@ function get_initial_toggle($url, $dots) {
 
 
 function binary_main() {
-	if(isset($_REQUEST['url'])) {
-		$url = ereg_replace('[^a-zA-Z0-9._-]', '', $_REQUEST['url']);
+	if(isset($_REQUEST['z'])) {
+		$url = ereg_replace('[^a-zA-Z0-9._-]', '', $_REQUEST['z']);
 		$pos = strpos($url, '.');
 		if($pos !== false) {
 			$dots = substr($url, $pos);
