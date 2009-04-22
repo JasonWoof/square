@@ -20,7 +20,7 @@ h1 {
 	font: bold 24px "Times New Roman", serif;
 }
 
-#main_head {
+#panel #main_head {
 	margin-top: 0;
 	padding: 0px;
 }
@@ -37,7 +37,7 @@ h3 {
 	margin: 5px 0;
 }
 
-#main_subhead {
+#panel #main_subhead {
 	margin-top: 0px;
 	padding-top: 0px;
 }

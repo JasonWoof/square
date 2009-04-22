@@ -36,7 +36,11 @@ function load(url) {
 
 function get_and_render(url) {
 	g_url = url; // set the global
-	tag('permalink_a').href = "?z=" + url;
+	if(url == '') {
+		tag('permalink_a').href = "./";
+	} else {
+		tag('permalink_a').href = "?z=" + url;
+	}
 
 	sendRequest('binary?z=' + url, call_me);
 }
