@@ -1,10 +1,20 @@
     Front End
-done?	deal properly (ignore?) clicks during animations
-	apply click url (get x,y,size from url, and call xor_blit)
-*	queue click urls (diffs) and send a batch to the server
+**	ignore clicks (on square) during zoom animations
+****	design a decent gui
+**	make the gui look nice
+	when recording edits, remove duplicates from g_changes
+	save gui
+		change save button to "saving..." then "saved." when clicked/saved
+		change save button back to "save" apon editing
+		save automatically periodically
+		save automatically when switching to zoom mode
     Back End
-*	accept, log and apply client diffs
-	subscription system where diffs from clients are queued up for other clients in the area (switch to persistant server?)
+	log all edits in a table of click urls. with user, session and/or ip
+	live updates
+		log edits to sessions of nearby users.
+		reply to save request with edits from other users
+		update periodic saving code so it polls for updates even if user hasn't edited
+		make automatic polling stop after a while
 
     Document
 	data structure
@@ -13,19 +23,26 @@ done?	deal properly (ignore?) clicks during animations
 
     Contemplate
 	consider caching options
-		popular/recent path
-			to update (per changed pixel) update popcache set flip = 1 - flip where path = xxx;
-*			how do we know what's popular?
-		top level cached in every way
-			cache ends of paths
-			cache encoded 256x256 tiles from at least top three levels
-*			reply to queries with cached value and update the cache periodically?
-	make plan for replay/undo logs
+		should cache the full text response
+		top level should not be recalculated too often
+			return cached rle + diffs until it's recalculated?
+				this way chached locations would be just like subscribers
+		how do we know what's popular? keep stats on most recent accesses?
+	history
+		how to show/navigate
+		how to flag as nasty
+	spam
+		how to detect?
+		ban users
+		signups
+	movies
+		how to make zoom movies (both back-end and gui)
+		how to make edit movies
 
 
     NOTES
 	web address use this charset:
-		abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_-
+		-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz
 	every 3 zooms adds another character to the url in this order:
 		medium: ends with two periods, uses the t64 db column
 		easy: ends with one period, uses the t128 db column

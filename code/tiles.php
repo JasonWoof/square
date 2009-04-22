@@ -296,17 +296,17 @@ function downsample($tl, $tr, $bl, $br) {
 	$out = 0;
 
 	# mask out the 2-bit sums from differnt rows, and add together. result r is 0-4 inclusive
-	# subtract that result from 1 to get a small negative number if r is greater than 1
+	# subtract that result from 1 to get a small negative number if r is greater than 2
 	# copy a high bit into the output char (we'll shift it down all at once later)
-	$out |= (1 - ((($tl & 0xc0) >> 6) + (($bl & 0xc0) >> 6))) & 0x80000000;
-	$out |= (1 - ((($tl & 0x30) >> 4) + (($bl & 0x30) >> 4))) & 0x40000000;
-	$out |= (1 - ((($tl & 0x0c) >> 2) + (($bl & 0x0c) >> 2))) & 0x20000000;
-	$out |= (1 - ((($tl & 0x03)     ) + (($bl & 0x03)     ))) & 0x10000000;
+	$out |= (2 - ((($tl & 0xc0) >> 6) + (($bl & 0xc0) >> 6))) & 0x80000000;
+	$out |= (2 - ((($tl & 0x30) >> 4) + (($bl & 0x30) >> 4))) & 0x40000000;
+	$out |= (2 - ((($tl & 0x0c) >> 2) + (($bl & 0x0c) >> 2))) & 0x20000000;
+	$out |= (2 - ((($tl & 0x03)     ) + (($bl & 0x03)     ))) & 0x10000000;
 
-	$out |= (1 - ((($tr & 0xc0) >> 6) + (($br & 0xc0) >> 6))) & 0x08000000;
-	$out |= (1 - ((($tr & 0x30) >> 4) + (($br & 0x30) >> 4))) & 0x04000000;
-	$out |= (1 - ((($tr & 0x0c) >> 2) + (($br & 0x0c) >> 2))) & 0x02000000;
-	$out |= (1 - ((($tr & 0x03)     ) + (($br & 0x03)     ))) & 0x01000000;
+	$out |= (2 - ((($tr & 0xc0) >> 6) + (($br & 0xc0) >> 6))) & 0x08000000;
+	$out |= (2 - ((($tr & 0x30) >> 4) + (($br & 0x30) >> 4))) & 0x04000000;
+	$out |= (2 - ((($tr & 0x0c) >> 2) + (($br & 0x0c) >> 2))) & 0x02000000;
+	$out |= (2 - ((($tr & 0x03)     ) + (($br & 0x03)     ))) & 0x01000000;
 
 	$out >>= 24;
 	$out &= 0xff; // >> is arithmetic

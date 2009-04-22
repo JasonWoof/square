@@ -36,6 +36,7 @@ function load(url) {
 
 function get_and_render(url) {
 	g_url = url; // set the global
+	tag('permalink_a').href = "?url=" + url;
 
 	sendRequest('binary?url=' + url, call_me);
 }
@@ -74,8 +75,10 @@ function save(changes) {
 }
 
 function saved(rec) {
-	log('');
-	log(rec.responseText);
+	alert('Saved.');
+	// FIXME finish saving GUI. (Make saving visible, show when finished, and make a retry mechanism)
+	//log('');
+	//log(rec.responseText);
 }
 
 
