@@ -10,7 +10,7 @@
   <script type="text/javascript" src="square.js"></script>
 </head>
 
-<body id="~basename~_body" onload="load('~starting_url~')">
+<body id="~basename~_body" onload="load('~starting_url~'); start_autosaving()">
 <div id="square_frame">
   <div id="loading">Loading... If this message does not disappear momentarily, then you'll probably have to enable javascript.</div>
 </div>
@@ -23,10 +23,10 @@
   <h2>Zoom</h2>
   <div id="zoom_area">
     <div id="zoom_widget">
-      <div id="zoom_widget_tl" class="button" onclick="zoom_tl()">in<div class="outer"><div class="inner"></div></div></div>
-      <div id="zoom_widget_tr" class="button" onclick="zoom_tr()">in<div class="outer"><div class="inner"></div></div></div>
-      <div id="zoom_widget_bl" class="button" onclick="zoom_bl()">in<div class="outer"><div class="inner"></div></div></div>
-      <div id="zoom_widget_br" class="button" onclick="zoom_br()">in<div class="outer"><div class="inner"></div></div></div>
+      <div id="zoom_widget_tl" class="button" onclick="zoom_tl()">in<div class="outer"><div class="inner"><div class="inner_in">in</div></div></div></div>
+      <div id="zoom_widget_tr" class="button" onclick="zoom_tr()">in<div class="outer"><div class="inner"><div class="inner_in">in</div></div></div></div>
+      <div id="zoom_widget_bl" class="button" onclick="zoom_bl()">in<div class="outer"><div class="inner"><div class="inner_in">in</div></div></div></div>
+      <div id="zoom_widget_br" class="button" onclick="zoom_br()">in<div class="outer"><div class="inner"><div class="inner_in">in</div></div></div></div>
     </div>
     <div id="zoom_out" class="button" onclick="zoom_to('out')">zoom out</div>
   </div>
@@ -40,7 +40,7 @@
     <div id="brush_8" class="brush" onclick="start_editing(8)"><div></div></div>
     <div id="brush_16" class="brush" onclick="start_editing(16)"><div></div></div>
   </div>
-  <p><a href="#" onclick="stop_editing(); return save_changes()">Save</a></p>
+  <p><span id="save_button" class="disabled_button" href="#" onclick="stop_editing(); return save_changes()">Save</span></p>
 
   <h2>Learn</h2>
   <div><a href="tutorial">Tutorial</a></div>

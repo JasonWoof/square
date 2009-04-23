@@ -43,12 +43,21 @@ h3 {
 }
 
 
-a {
+a, #save_button{
 	color: #555;
+	cursor: pointer;
+	text-decoration: underline;
 }
 
-a:hover {
-	text-decoration: underline;
+
+#save_button.disabled_button {
+	color: #888;
+	text-decoration: none;
+	pointer: text;
+}
+#save_button.disabled_button:hover {
+	color: #888;
+	pointer: text;
 }
 
 #panel {
@@ -124,6 +133,10 @@ a:hover {
 
 .button:hover {
 	text-decoration: underline;
+}
+
+#zoom_widget .button {
+	text-decoration: none;
 }
 
 #brushes {
@@ -223,6 +236,7 @@ a:hover {
 
 #zoom_widget div.outer {
 	position: absolute;
+	background: #fff;
 	top: -200px;
 	left: -200px;
 	width: 32px;
@@ -232,14 +246,30 @@ a:hover {
 	z-index: 3;
 }
 #zoom_widget div.inner {
+	background: #e3e3e3;
 	border: 1px solid #444;
 	height: 30px;
 	width: 30px;
+	z-index: 4
+	position: relative;
+}
+
+#zoom_widget .button div.inner_in {
+	background: #ddd;
+	border: 2px solid black;
+	top: 8px;
+	left: 8px;
+	width: 20px;
+	height: 20px;
+	position: absolute;
 }
 
 #zoom_widget .button:hover div.outer {
 	top: -11px;
 	left: -11px;
+}
+#zoom_widget .button:hover {
+	z-index: 5;
 }
 
 #zoom_widget #zoom_widget_tl:hover {

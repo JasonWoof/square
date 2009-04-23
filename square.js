@@ -17,6 +17,10 @@ var g_brush_y = -500;
 var g_brush_url = '';
 var g_brush_easyurl = '';
 var g_changes = [];
+var g_never_changed = true;
+var g_save_button_label = 'save';
+var g_save_button_state = 'disabled';
+var g_saving = false;
 var g_tab = 'nav';
 var squares_tb, squares_bt, squares_lr, squares_rl;
 var front_squares_tb, front_squares_bt, front_squares_lr, front_squares_rl;
@@ -27,6 +31,7 @@ var g_background_image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB
 
 var g_url; // id number of current square
 var g_charset = '-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz'; // id number of current square
+var g_autosave_ticker = 0;
 
 // this is called (exclusively) by the html page's body onload
 function load(url) {
@@ -42,10 +47,14 @@ function get_and_render(url) {
 		tag('permalink_a').href = "?z=" + url;
 	}
 
-	sendRequest('binary?z=' + url, call_me);
+	if(g_changes.length) {
+		save_and_zoom(url);
+	} else {
+		sendRequest('binary?z=' + url, binary_reply);
+	}
 }
 
-function call_me(rec) {
+function binary_reply(rec) {
 	if(animating) {
 		data_ready = true;
 		data_that_is_ready = rec.responseText;
@@ -54,15 +63,61 @@ function call_me(rec) {
 	}
 }
 
+function update_save_button() {
+	var button = tag('save_button');
+	var state, label;
+	if(g_changes.length) {
+		g_never_changed = false;
+		state = 'enabled';
+	} else {
+		state = 'disabled';
+	}
+	if(g_never_changed) {
+		label = 'Save';
+	} else if(g_saving) {
+		label = 'Saving...';
+		state = 'disabled';
+	} else if(g_changes.length) {
+		label = 'Save';
+	} else {
+		label = 'Saved';
+	}
+
+	/* update dom only if we've really changed */
+	if(g_save_button_label != label) {
+		button.innerHTML = label;
+		g_save_button_label = label;
+	}
+
+	/* update dom only if we've really changed */
+	if(g_save_button_state != state) {
+		if(state == 'enabled') {
+			$(button).removeClass('disabled_button');
+		} else {
+			$(button).addClass('disabled_button');
+		}
+		g_save_button_state = state;
+	}
+}
+
 function save_changes() {
-	save(g_changes);
+	if(g_saving) {
+		return;
+	}
+	save(g_changes, false, '');
 	g_changes = [];
 	return false; // don't activate href
 }
 
+function save_and_zoom(url) {
+	save(g_changes, true, url);
+	g_changes = [];
+}
+
 // send our clicks to the server (async)
-function save(changes) {
+function save(changes, zoom, url) {
 	var url_data, i;
+	var zoom_param = '';
 
 	if(!changes.length) {
 		return;
@@ -76,14 +131,35 @@ function save(changes) {
 		url_data += changes[i];
 	}
 
-	sendRequest('save', saved, 'changes=' + url_data);
+	if(zoom) {
+		zoom_param = '&z=' + url;
+	}
+
+	g_saving = true;
+	update_save_button();
+	sendRequest('save', saved, 'changes=' + url_data + zoom_param);
+}
+
+function start_autosaving() {
+	if(g_autosave_ticker) {
+		return;
+	}
+	g_autosave_ticker = setInterval(save_changes, 10000);
+}
+
+function stop_autosaving() {
+	if(!g_autosave_ticker) {
+		return;
+	}
+	clearInterval(g_autosave_ticker);
 }
 
 function saved(rec) {
-	alert('Saved.');
-	// FIXME finish saving GUI. (Make saving visible, show when finished, and make a retry mechanism)
-	//log('');
-	//log(rec.responseText);
+	g_saving = false;
+	update_save_button();
+	if(rec.responseText) {
+		binary_reply(rec);
+	}
 }
 
 
@@ -781,6 +857,7 @@ function brush_clicked(e) {
 		return;
 	}
 	g_changes[g_changes.length] = g_brush_url;
+	update_save_button();
 	xor_square(g_brush_x / 2, g_brush_y / 2, g_brush_size); // "/ 2" because everything is in screen coordinates
 }
 

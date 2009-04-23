@@ -1,16 +1,11 @@
     Front End
-**	ignore clicks (on square) during zoom animations
-	create about page
+	create rules/etiquette page
 	create tutorial page
-	create donation page
 	replace brush images with floating div (with border)
+	make zoom in tool
+	consider making zoom out tool and doing away with "zoom" section
 **	design a cool background or something to make the site more hip
 	when recording edits, remove duplicates from g_changes
-	save gui
-		change save button to "saving..." then "saved." when clicked/saved
-		change save button back to "save" apon editing
-		save automatically periodically
-		save automatically when switching to zoom mode
     Back End
 	log all edits in a table of click urls. with user, session and/or ip
 	live updates

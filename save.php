@@ -7,24 +7,24 @@ require_once('init.php');
 function save_main() {
 	header('Content-type: text/plain');
 	if(!isset($_REQUEST['changes'])) {
-		echo "parameter missing";
+		header('X-ZoomingArtError: ' + "parameter missing");
 		return;
 	}
 
 	$changes = ereg_replace('[^a-zA-Z0-9._ -]', '', $_REQUEST['changes']);
 	if(strlen($changes) == 0) {
-		echo "no changes";
+		header('X-ZoomingArtError: ' + "no changes");
 		return;
 	}
 
 	$rows = explode(' ', $changes);
 	if(!$rows) {
-		echo "splode error";
+		header('X-ZoomingArtError: ' + "splode error");
 		return;
 	}
 
 	if(count($rows) > 5000) {
-		echo count($rows) . ' is too many changes!';
+		header('X-ZoomingArtError: ' + count($rows) . ' is too many changes!');
 		return;
 	}
 
@@ -64,10 +64,10 @@ function save_main() {
 			--$levels;
 		}
 
-		echo "change: $change, tile_url: $tile_url, x: $x, y: $y, size: $size<br>";
+		# echo "change: $change, tile_url: $tile_url, x: $x, y: $y, size: $size<br>";
 		if(!isset($loaded[$tile_url])) {
 			list($t128, $id) = tile_get_128($tile_url, true);
-			echo "id: $id<br>";
+			# echo "id: $id<br>";
 			$loaded[$tile_url] = $t128;
 			$loaded_ids[$tile_url] = $id;
 		}
@@ -82,7 +82,11 @@ function save_main() {
 		} else {
 			db_insert('tiles', 't128,t64,t32,url', $t128, $t64, $t32, $tile_url);
 		}
-		echo "saved $tile_url (id $id) to database<br>";
+		# echo "saved $tile_url (id $id) to database<br>";
+	}
+
+	if(isset($_REQUEST['z'])) {
+		return 'binary';
 	}
 }
 
