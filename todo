@@ -1,4 +1,8 @@
     Front End
+	deal with http requests failing to respond
+		show that there's a problem, especially if trying to complete a zoom
+		try again
+	permalink needs to save first
 	create rules/etiquette page
 	create tutorial page
 	replace brush images with floating div (with border)

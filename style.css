@@ -309,3 +309,8 @@ a, #save_button{
 	left: -4000px;
 	width: 200px;
 }
+
+.beta {
+	font: bold 9px "Verdana", sans-serif;
+	color: red;
+}
